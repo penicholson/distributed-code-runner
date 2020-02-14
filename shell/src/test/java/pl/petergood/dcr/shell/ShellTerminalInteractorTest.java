@@ -3,6 +3,8 @@ package pl.petergood.dcr.shell;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
+
 public class ShellTerminalInteractorTest {
 
     @Test
@@ -24,12 +26,25 @@ public class ShellTerminalInteractorTest {
         TerminalInteractor interactor = new ShellTerminalInteractor();
 
         // when
-        ExecutionResult result = interactor.exec(new String[] { "echozzz", "hello" });
+        ExecutionResult result = interactor.exec(new String[] { "echo", "error", ">&2" });
+
+        // then
+        Assertions.assertThat(result.getStdErr()).isEqualTo("error\n");
+        Assertions.assertThat(result.getStdOut()).isEmpty();
+    }
+
+    @Test
+    public void verifyEnvVarsAreApplied() {
+        // given
+        TerminalInteractor interactor = new ShellTerminalInteractor();
+
+        // when
+        ExecutionResult result = interactor.exec(new String[] { "echo", "$ENV_VAR" }, Collections.singletonMap("ENV_VAR", "testvalue"));
 
         // then
         // TODO: find error msg
-        Assertions.assertThat(result.getStdErr()).isEqualTo("The command echozzz was not found\n");
-        Assertions.assertThat(result.getStdOut()).isEmpty();
+        Assertions.assertThat(result.getStdOut()).isEqualTo("testvalue\n");
+        Assertions.assertThat(result.getStdErr()).isEmpty();
     }
 
 }

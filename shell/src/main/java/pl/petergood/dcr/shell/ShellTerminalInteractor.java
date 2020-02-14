@@ -1,5 +1,8 @@
 package pl.petergood.dcr.shell;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -20,25 +23,24 @@ public class ShellTerminalInteractor implements TerminalInteractor {
 
     @Override
     public ExecutionResult exec(String[] commandParts, Map<String, String> envVars, File workingDir) {
-        Runtime runtime = Runtime.getRuntime();
-        String[] envVarsKeyValue = null;
+        ProcessBuilder processBuilder = new ProcessBuilder(ArrayUtils.addAll(new String[] { "/bin/bash", "-c" }, StringUtils.join(commandParts, " ")));
+        processBuilder.directory(workingDir);
+
         StringBuilder stdOut = new StringBuilder();
         StringBuilder stdErr = new StringBuilder();
+        int exitCode = 1;
 
         if (envVars != null) {
-            envVarsKeyValue = new String[envVars.size()];
-            envVars.entrySet().stream()
-                    .map((entry) -> entry.getKey() + "=" + entry.getValue())
-                    .collect(Collectors.toList())
-                    .toArray(envVarsKeyValue);
+            processBuilder.environment().putAll(envVars);
         }
 
         try {
-            Process spawnedProcess = runtime.exec(commandParts, envVarsKeyValue, workingDir);
+            Process spawnedProcess = processBuilder.start();
+            exitCode = spawnedProcess.waitFor();
 
             BufferedReader stdOutReader = new BufferedReader(new InputStreamReader(spawnedProcess.getInputStream()));
             BufferedReader stdErrReader = new BufferedReader(new InputStreamReader(spawnedProcess.getErrorStream()));
-            String line = null;
+            String line;
 
             while ((line = stdOutReader.readLine()) != null) {
                 stdOut.append(line);
@@ -49,10 +51,10 @@ public class ShellTerminalInteractor implements TerminalInteractor {
                 stdErr.append(line);
                 stdErr.append("\n");
             }
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             throw new ExecutionException(e);
         }
 
-        return new ExecutionResult(stdOut.toString(), stdErr.toString());
+        return new ExecutionResult(exitCode, stdOut.toString(), stdErr.toString());
     }
 }
