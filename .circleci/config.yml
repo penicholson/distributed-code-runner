@@ -1,0 +1,26 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:11-jdk
+
+    working_directory: ~/repo
+
+    environment:
+      MAVEN_OPTS: -Xmx3200m
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          key: circleci-demo-java-spring-{{ checksum "pom.xml" }}
+
+      # Cannot use dependency:go-offline due to https://github.com/apache/maven-dependency-plugin/pull/2
+      - run: mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
+
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: circleci-demo-java-spring-{{ checksum "pom.xml" }}
+
+      - run: mvn clean install
