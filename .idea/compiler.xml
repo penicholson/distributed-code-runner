@@ -14,7 +14,7 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="compilationworker" options="-parameters" />
-      <module name="shell" options="-parameters" />
+      <module name="shell" options="" />
     </option>
   </component>
 </project>
