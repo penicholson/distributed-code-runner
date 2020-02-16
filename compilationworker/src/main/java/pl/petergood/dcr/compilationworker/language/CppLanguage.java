@@ -17,7 +17,7 @@ public class CppLanguage implements Language {
     @Override
     public ProcessingResult process(ProgramSource programSource) {
         ExecutionResult executionResult = jail.executeInJail(new String[] {
-                "g++",
+                "/usr/bin/g++",
                 programSource.getFile().getAbsolutePath(),
                 "-o",
                 "output"

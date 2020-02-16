@@ -26,7 +26,7 @@ public class CppLanguageTest {
         CppLanguage cppLanguage = new CppLanguage(jailMock);
 
         // when
-        ProcessingResult result = cppLanguage.process(new FileProgramSource(new File("/jail/program.cpp")));
+        ProcessingResult result = cppLanguage.process(new FileProgramSource(new File("/jail/program.cpp"), LanguageId.CPP));
 
         // then
         String expectedPath = "C:\\jail\\output";
@@ -36,9 +36,9 @@ public class CppLanguageTest {
         Assertions.assertThat(result.getProcessedFile().getAbsolutePath()).isEqualTo(expectedPath);
 
         if (isWindows) {
-            verify(jailMock, times(1)).executeInJail(new String[] { "g++", "C:\\jail\\program.cpp", "-o", "output" });
+            verify(jailMock, times(1)).executeInJail(new String[] { "/usr/bin/g++", "C:\\jail\\program.cpp", "-o", "output" });
         } else {
-            verify(jailMock, times(1)).executeInJail(new String[] { "g++", "/jail/program.cpp", "-o", "output" });
+            verify(jailMock, times(1)).executeInJail(new String[] { "/usr/bin/g++", "/jail/program.cpp", "-o", "output" });
         }
     }
 

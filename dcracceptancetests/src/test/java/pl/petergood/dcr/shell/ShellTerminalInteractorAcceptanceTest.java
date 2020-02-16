@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
-public class ShellTerminalInteractorTest {
+public class ShellTerminalInteractorAcceptanceTest {
 
     @Test
     public void verifyCommandIsExecuted() {
@@ -42,7 +42,6 @@ public class ShellTerminalInteractorTest {
         ExecutionResult result = interactor.exec(new String[] { "echo", "$ENV_VAR" }, Collections.singletonMap("ENV_VAR", "testvalue"));
 
         // then
-        // TODO: find error msg
         Assertions.assertThat(result.getStdOut()).isEqualTo("testvalue\n");
         Assertions.assertThat(result.getStdErr()).isEmpty();
     }

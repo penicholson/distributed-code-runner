@@ -24,17 +24,21 @@ public class NsJailTest {
     @Test
     public void verifyNsJailIsCalled() throws IOException {
         // given
+        String hostJailPath = isWindows ? "C:\\usr\\nsjail" : "/usr/nsjail";
         TerminalInteractor terminalInteractor = mock(TerminalInteractor.class);
         FileInteractor fileInteractor = mock(FileInteractor.class);
         NsJailConfig jailConfig = new NsJailConfig.Builder()
                 .setConfig("/usr/share/config.cfg")
-                .setHostJailPath(new File(isWindows ? "C:\\usr\\jail" : "/usr/jail"))
+                .setHostJailPath(new File(hostJailPath))
+                .setJailDirectoryName("jail", NsJailDirectoryMode.READ_WRITE)
                 .build();
         Jail jail = new NsJail(jailConfig, terminalInteractor, fileInteractor);
 
-        String stdoutFilePath = isWindows ? "C:\\usr\\jail\\stdout" : "/usr/jail/stdout";
-        String stderrFilePath = isWindows ? "C:\\usr\\jail\\stderr" : "/usr/jail/stderr";
-        String[] expectedCommand = new String[] { "nsjail", "--config /usr/share/config.cfg", "--", "echo", "hello",
+        String absoluteJailPath = isWindows ? "C:\\usr\\nsjail\\jail" : "/usr/nsjail/jail";
+        String stdoutFilePath = isWindows ? "C:\\usr\\nsjail\\stdout" : "/usr/nsjail/stdout";
+        String stderrFilePath = isWindows ? "C:\\usr\\nsjail\\stderr" : "/usr/nsjail/stderr";
+        String[] expectedCommand = new String[] { "nsjail", "--config /usr/share/config.cfg --cwd " + absoluteJailPath + " --bindmount " + absoluteJailPath,
+                "--", "echo", "hello",
                 ">", stdoutFilePath, "2>", stderrFilePath };
 
         when(terminalInteractor.exec(expectedCommand)).thenReturn(new ExecutionResult(0, "", ""));

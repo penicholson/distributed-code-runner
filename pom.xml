@@ -19,6 +19,7 @@
     <modules>
         <module>compilationworker</module>
         <module>shell</module>
+        <module>dcracceptancetests</module>
     </modules>
 
     <dependencies>

@@ -26,6 +26,19 @@ public class NsJail implements Jail {
         this.jailConfig = jailConfig;
         this.terminalInteractor = terminalInteractor;
         this.fileInteractor = fileInteractor;
+
+        setupJailDirectory();
+    }
+
+    private void setupJailDirectory() {
+        // TODO: think about this...
+        if (jailConfig.getHostJailPath().getAbsolutePath().equals("/")) {
+            throw new IllegalStateException("U CRAZY?");
+        }
+
+        terminalInteractor.exec(new String[] { "rm", "-r", "-f", jailConfig.getHostJailPath().getAbsolutePath() });
+        terminalInteractor.exec(new String[] { "mkdir", "-p", jailConfig.getHostJailPath().getAbsolutePath() });
+        terminalInteractor.exec(new String[] { "mkdir", "-p", jailConfig.getAbsoluteJailPath().getAbsolutePath() });
     }
 
     @Override
