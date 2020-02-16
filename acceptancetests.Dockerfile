@@ -21,6 +21,7 @@ RUN git clone https://github.com/google/nsjail.git
 RUN cd nsjail && make && mv /nsjail/nsjail /bin
 
 COPY . /dcr
+RUN cp /dcr/dcracceptancetests/test-nsjail.cfg /
 RUN chmod +x /dcr/tmp.sh
 
 #ENTRYPOINT ["mvn", "-f", "/dcr", "clean", "install", "-pl", "dcracceptancetests", "-am"]

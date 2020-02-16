@@ -14,8 +14,8 @@ public class FileSystemFileInteractorAcceptanceTest {
     public void verifyFileContentsIsRead() throws Exception {
         // given
         String fileContents = "hello world!";
-        File file = new File("test.txt");
-        Files.asCharSink(file, Charset.defaultCharset(), FileWriteMode.APPEND).write(fileContents);
+        File file = new File("/test.txt");
+        Files.asCharSink(file, Charset.defaultCharset()).write(fileContents);
         FileInteractor fileInteractor = new FileSystemFileInteractor();
 
         // when

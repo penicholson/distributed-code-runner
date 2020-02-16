@@ -1,10 +1,9 @@
 package pl.petergood.dcr.compilationworker.source;
 
 import pl.petergood.dcr.compilationworker.language.LanguageId;
-
-import java.io.File;
+import pl.petergood.dcr.jail.JailedFile;
 
 public interface ProgramSource {
-    File getFile();
+    JailedFile getJailedFile();
     LanguageId getLanguageId();
 }

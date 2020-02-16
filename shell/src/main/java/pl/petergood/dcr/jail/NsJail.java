@@ -83,4 +83,9 @@ public class NsJail implements Jail {
 
         return new ExecutionResult(result.getExitCode(), stdout, stderr);
     }
+
+    @Override
+    public File getJailPath() {
+        return jailConfig.getAbsoluteJailPath();
+    }
 }

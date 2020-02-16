@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import pl.petergood.dcr.compilationworker.source.FileProgramSource;
 import pl.petergood.dcr.jail.Jail;
+import pl.petergood.dcr.jail.JailedFile;
 
 import java.io.File;
 
@@ -24,9 +25,10 @@ public class CppLanguageTest {
         // given
         Jail jailMock = mock(Jail.class);
         CppLanguage cppLanguage = new CppLanguage(jailMock);
+        when(jailMock.getJailPath()).thenReturn(new File("/jail"));
 
         // when
-        ProcessingResult result = cppLanguage.process(new FileProgramSource(new File("/jail/program.cpp"), LanguageId.CPP));
+        ProcessingResult result = cppLanguage.process(new FileProgramSource(new JailedFile("/jail/program.cpp", jailMock), LanguageId.CPP));
 
         // then
         String expectedPath = "C:\\jail\\output";

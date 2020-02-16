@@ -20,15 +20,6 @@ public class NsJailAcceptanceTest {
             .setJailDirectoryName("jail", NsJailDirectoryMode.READ_WRITE)
             .build();
 
-    @BeforeAll
-    public static void initializeTestJailConfig() throws Exception {
-        File configFile = new File("/test-nsjail.cfg");
-        String configFileContents = Resources.toString(Resources.getResource("test-nsjail.cfg"), Charset.defaultCharset());
-
-        Files.asCharSink(configFile, Charset.defaultCharset())
-                .write(configFileContents);
-    }
-
     @Test
     public void verifyExecutionInNsJail() {
         // given

@@ -1,20 +1,23 @@
 package pl.petergood.dcr.compilationworker.language;
 
+import pl.petergood.dcr.jail.JailedFile;
 import pl.petergood.dcr.shell.ExecutionResult;
 
-import java.io.File;
-
 public class ProcessingResult {
-    private File processedFile;
+    private JailedFile processedFile;
     private ExecutionResult executionResult;
 
-    public ProcessingResult(File processedFile, ExecutionResult executionResult) {
+    public ProcessingResult(JailedFile processedFile, ExecutionResult executionResult) {
         this.processedFile = processedFile;
         this.executionResult = executionResult;
     }
 
-    public File getProcessedFile() {
+    public JailedFile getProcessedFile() {
         return processedFile;
+    }
+
+    public ExecutionResult getExecutionResult() {
+        return executionResult;
     }
 
     public boolean success() {
