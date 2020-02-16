@@ -139,4 +139,17 @@ public class NsJailAcceptanceTest {
         Assertions.assertThat(result.getExitCode()).isNotEqualTo(0);
     }
 
+    @Test
+    public void verifyExceptionIsThrownAfterJailError() {
+        // given
+        TerminalInteractor terminalInteractor = new ShellTerminalInteractor();
+        Jail jail = new NsJail(jailConfig, terminalInteractor);
+
+        // when
+        Throwable thrownException = Assertions.catchThrowable(() -> jail.executeInJail(new String[] { "/bin/this_file_does_not_exist" }));
+
+        // then
+        Assertions.assertThat(thrownException).isInstanceOf(NsJailException.class);
+    }
+
 }

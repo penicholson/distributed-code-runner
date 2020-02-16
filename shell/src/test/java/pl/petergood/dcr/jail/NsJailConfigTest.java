@@ -51,4 +51,23 @@ public class NsJailConfigTest {
         Assertions.assertThat(commandFlags).isEqualTo("--cwd " + jailPath + " --bindmount_ro /usr --bindmount_ro /bin --bindmount_ro " + jailPath);
     }
 
+    @Test
+    public void verifyExcludedFlagsAreNotGenerated() {
+        // given
+        NsJailConfig config = new NsJailConfig.Builder()
+                .readOnlyMount("/usr")
+                .readOnlyMount("/bin")
+                .setHostJailPath(new File("/usr/nsjail"))
+                .setJailDirectoryName("jail", NsJailDirectoryMode.READ_ONLY)
+                .setLogFile("/usr/nsjail/jail.log")
+                .build();
+
+        // when
+        String commandFlags = config.getCommandFlags("log");
+
+        // then
+        String jailPath = isWindows ? "C:\\usr\\nsjail\\jail" : "/usr/nsjail/jail";
+        Assertions.assertThat(commandFlags).isEqualTo("--cwd " + jailPath + " --bindmount_ro /usr --bindmount_ro /bin --bindmount_ro " + jailPath);
+    }
+
 }

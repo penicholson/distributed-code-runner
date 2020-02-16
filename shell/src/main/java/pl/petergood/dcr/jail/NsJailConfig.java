@@ -1,10 +1,9 @@
 package pl.petergood.dcr.jail;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class NsJailConfig {
 
@@ -15,7 +14,7 @@ public class NsJailConfig {
     private NsJailConfig() {
     }
 
-    public String getCommandFlags() {
+    public String getCommandFlags(String ...excludedFlags) {
         StringBuilder commandFlags = new StringBuilder();
         List<String> configLocations = flags.get("config");
 
@@ -24,7 +23,7 @@ public class NsJailConfig {
         }
 
         flags.entrySet().stream()
-            .filter((entry) -> !entry.getKey().equals("config"))
+            .filter((entry) -> !entry.getKey().equals("config") && !ArrayUtils.contains(excludedFlags, entry.getKey()))
             .forEach((entry) ->
                 entry.getValue().forEach((flagValue) -> commandFlags.append(String.format("--%s %s ", entry.getKey(), flagValue)))
             );
@@ -67,6 +66,11 @@ public class NsJailConfig {
 
         public Builder workingDirectory(String path) {
             addFlag("cwd", path);
+            return this;
+        }
+
+        public Builder logFilePath(String path) {
+            addFlag("log", path);
             return this;
         }
 
