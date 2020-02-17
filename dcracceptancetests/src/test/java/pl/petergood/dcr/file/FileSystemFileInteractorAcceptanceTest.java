@@ -1,6 +1,5 @@
 package pl.petergood.dcr.file;
 
-import com.google.common.io.FileWriteMode;
 import com.google.common.io.Files;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -19,7 +18,7 @@ public class FileSystemFileInteractorAcceptanceTest {
         FileInteractor fileInteractor = new FileSystemFileInteractor();
 
         // when
-        String readFileContents = fileInteractor.readFile(file);
+        String readFileContents = fileInteractor.readFileAsString(file);
 
         // then
         Assertions.assertThat(readFileContents).isEqualTo(fileContents);

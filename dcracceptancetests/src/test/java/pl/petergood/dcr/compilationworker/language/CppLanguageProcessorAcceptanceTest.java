@@ -11,14 +11,14 @@ import pl.petergood.dcr.jail.JailedFile;
 
 import java.nio.charset.Charset;
 
-public class CppLanguageAcceptanceTest {
+public class CppLanguageProcessorAcceptanceTest {
 
     @Test
     public void verifyCppSourceIsCompiled() throws Exception {
         // given
         Jail jail = AcceptanceTestsJailFactory.getJail();
         JailedFile jailedFile = new JailedFile(jail.getJailPath(), "source.cpp", jail);
-        CppLanguage cppLanguage = new CppLanguage(jail);
+        CppLanguageProcessor cppLanguage = new CppLanguageProcessor(jail);
         String source = "#include <iostream>\n" +
                 "\n" +
                 "using namespace std;\n" +
@@ -44,7 +44,7 @@ public class CppLanguageAcceptanceTest {
         // given
         Jail jail = AcceptanceTestsJailFactory.getJail();
         JailedFile jailedFile = new JailedFile(jail.getJailPath(), "source.cpp", jail);
-        CppLanguage cppLanguage = new CppLanguage(jail);
+        CppLanguageProcessor cppLanguage = new CppLanguageProcessor(jail);
         String source = " #include <iostream>\n" +
                 "\n" +
                 " using namespace std;\n" +

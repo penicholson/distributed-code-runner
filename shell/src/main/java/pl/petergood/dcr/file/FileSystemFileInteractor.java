@@ -8,7 +8,12 @@ import java.nio.charset.Charset;
 
 public class FileSystemFileInteractor implements FileInteractor {
     @Override
-    public String readFile(File file) throws IOException {
+    public String readFileAsString(File file) throws IOException {
         return Files.asCharSource(file, Charset.defaultCharset()).read();
+    }
+
+    @Override
+    public byte[] readFileAsBytes(File file) throws IOException {
+        return Files.asByteSource(file).read();
     }
 }

@@ -66,14 +66,14 @@ public class NsJail implements Jail {
         String stdout, stderr, jailLogs;
 
         try {
-            stdout = fileInteractor.readFile(stdoutFile);
-            stderr = fileInteractor.readFile(stderrFile);
+            stdout = fileInteractor.readFileAsString(stdoutFile);
+            stderr = fileInteractor.readFileAsString(stderrFile);
         } catch (IOException e) {
             throw new ExecutionException(e);
         }
 
         try {
-            jailLogs = fileInteractor.readFile(jailLogFile);
+            jailLogs = fileInteractor.readFileAsString(jailLogFile);
             if (logErrorDetector.isErrorPresent(jailLogs)) {
                 throw new NsJailException(jailLogs);
             }

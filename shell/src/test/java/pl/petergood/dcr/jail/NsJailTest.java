@@ -53,9 +53,9 @@ public class NsJailTest {
     public void verifyNsJailIsCalled() throws IOException {
         // given
         when(terminalInteractor.exec(expectedCommand)).thenReturn(new ExecutionResult(0, "", ""));
-        when(fileInteractor.readFile(new File(stdoutFilePath))).thenReturn("output");
-        when(fileInteractor.readFile(new File(stderrFilePath))).thenReturn("");
-        when(fileInteractor.readFile(new File(jailLogFilePath))).thenReturn("");
+        when(fileInteractor.readFileAsString(new File(stdoutFilePath))).thenReturn("output");
+        when(fileInteractor.readFileAsString(new File(stderrFilePath))).thenReturn("");
+        when(fileInteractor.readFileAsString(new File(jailLogFilePath))).thenReturn("");
 
         // when
         ExecutionResult result = jail.executeInJail(new String[] { "echo", "hello" });
@@ -79,9 +79,9 @@ public class NsJailTest {
                 "[I][2020-02-16T16:26:24+0000] pid=263 ([STANDALONE MODE]) exited with status: 0, (PIDs left: 0)";
 
         when(terminalInteractor.exec(expectedCommand)).thenReturn(new ExecutionResult(0, "", ""));
-        when(fileInteractor.readFile(new File(stdoutFilePath))).thenReturn("");
-        when(fileInteractor.readFile(new File(stderrFilePath))).thenReturn("");
-        when(fileInteractor.readFile(new File(jailLogFilePath))).thenReturn(rawJailLogs);
+        when(fileInteractor.readFileAsString(new File(stdoutFilePath))).thenReturn("");
+        when(fileInteractor.readFileAsString(new File(stderrFilePath))).thenReturn("");
+        when(fileInteractor.readFileAsString(new File(jailLogFilePath))).thenReturn(rawJailLogs);
 
         // when
         Throwable thrownException = Assertions.catchThrowable(() -> jail.executeInJail(new String[] { "echo", "hello" }));

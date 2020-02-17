@@ -11,7 +11,7 @@ import java.io.File;
 
 import static org.mockito.Mockito.*;
 
-public class CppLanguageTest {
+public class CppLanguageProcessorTest {
 
     private static boolean isWindows = true;
 
@@ -24,7 +24,7 @@ public class CppLanguageTest {
     public void verifyGppCalled() {
         // given
         Jail jailMock = mock(Jail.class);
-        CppLanguage cppLanguage = new CppLanguage(jailMock);
+        CppLanguageProcessor cppLanguage = new CppLanguageProcessor(jailMock);
         when(jailMock.getJailPath()).thenReturn(new File("/jail"));
 
         // when

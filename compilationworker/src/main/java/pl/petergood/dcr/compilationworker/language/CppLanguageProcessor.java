@@ -5,11 +5,11 @@ import pl.petergood.dcr.jail.Jail;
 import pl.petergood.dcr.jail.JailedFile;
 import pl.petergood.dcr.shell.ExecutionResult;
 
-public class CppLanguage implements Language {
+public class CppLanguageProcessor implements LanguageProcessor {
 
     private Jail jail;
 
-    public CppLanguage(Jail jail) {
+    public CppLanguageProcessor(Jail jail) {
         this.jail = jail;
     }
 

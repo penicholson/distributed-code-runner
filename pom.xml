@@ -20,6 +20,7 @@
         <module>compilationworker</module>
         <module>shell</module>
         <module>dcracceptancetests</module>
+        <module>messaging</module>
     </modules>
 
     <dependencies>
