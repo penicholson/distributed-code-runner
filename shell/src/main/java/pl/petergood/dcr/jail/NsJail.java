@@ -85,6 +85,13 @@ public class NsJail implements Jail {
     }
 
     @Override
+    public JailedFile touchFile(String fileName, String contents) throws IOException {
+        JailedFile jailedFile = new JailedFile(jailConfig.getAbsoluteJailPath(), fileName, this);
+        fileInteractor.writeFileAsString(jailedFile, contents);
+        return jailedFile;
+    }
+
+    @Override
     public File getJailPath() {
         return jailConfig.getAbsoluteJailPath();
     }

@@ -24,4 +24,18 @@ public class FileSystemFileInteractorAcceptanceTest {
         Assertions.assertThat(readFileContents).isEqualTo(fileContents);
     }
 
+    @Test
+    public void verifyFileIsWritten() throws Exception {
+        // given
+        File file = new File("/hello.txt");
+        FileInteractor fileInteractor = new FileSystemFileInteractor();
+
+        // when
+        fileInteractor.writeFileAsString(file, "this is a test!");
+
+        // then
+        String contents = Files.asCharSource(file, Charset.defaultCharset()).read();
+        Assertions.assertThat(contents).isEqualTo("this is a test!");
+    }
+
 }

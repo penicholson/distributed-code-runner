@@ -6,4 +6,6 @@ import java.io.IOException;
 public interface FileInteractor {
     String readFileAsString(File file) throws IOException;
     byte[] readFileAsBytes(File file) throws IOException;
+
+    void writeFileAsString(File file, String contents) throws IOException;
 }

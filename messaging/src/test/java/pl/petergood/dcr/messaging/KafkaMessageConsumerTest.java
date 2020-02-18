@@ -18,6 +18,7 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class KafkaMessageConsumerTest {
 
@@ -40,11 +41,10 @@ public class KafkaMessageConsumerTest {
         // given
         Properties properties = new Properties();
         properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaRule.getEmbeddedKafka().getBrokersAsString());
-        properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,  StringDeserializer.class.getName());
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "test-group");
         properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        MessageConsumer<String> messageConsumer = new KafkaMessageConsumer<>(properties, "test-topic");
+        MessageConsumer<String> messageConsumer = new KafkaMessageConsumer<>(properties, "test-topic", Duration.ofSeconds(1),
+                new StringDeserializer(), new StringDeserializer());
         Collection<String> messages = new LinkedBlockingDeque<>();
 
         messageConsumer.setOnMessageReceived(messages::addAll);
@@ -59,6 +59,29 @@ public class KafkaMessageConsumerTest {
         Awaitility.await().atMost(Duration.ofSeconds(10)).until(() -> messages.size() == 1);
         Assertions.assertThat(messages.size()).isEqualTo(1);
         Assertions.assertThat(messages.contains("hello world!")).isTrue();
+    }
+
+    @Test
+    public void verifyMessageHandlerIsOnlyCalledWhenNewMessagesArrive() throws Exception {
+        // given
+        Properties properties = new Properties();
+        properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaRule.getEmbeddedKafka().getBrokersAsString());
+        properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "test-group");
+        properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        MessageConsumer<String> messageConsumer = new KafkaMessageConsumer<>(properties, "test-topic", Duration.ofSeconds(1),
+                new StringDeserializer(), new StringDeserializer());
+
+        AtomicInteger atomicInteger = new AtomicInteger();
+        messageConsumer.setOnMessageReceived((messages) -> atomicInteger.incrementAndGet());
+        Thread t = new Thread((Runnable) messageConsumer);
+        t.start();
+
+        // when
+        producer.send(new ProducerRecord<>("test-topic", "message"));
+        Thread.sleep(5000);
+
+        // then
+        Assertions.assertThat(atomicInteger.get()).isEqualTo(1);
     }
 
 }

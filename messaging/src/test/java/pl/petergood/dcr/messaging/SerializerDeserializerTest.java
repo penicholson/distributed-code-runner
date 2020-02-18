@@ -11,7 +11,7 @@ public class SerializerDeserializerTest {
     public void verifySerializationAndDeserialization() {
         // given
         TestPojo testPojo = new TestPojo(137);
-        ObjectSerializer objectSerializer = new ObjectSerializer();
+        ObjectSerializer<TestPojo> objectSerializer = new ObjectSerializer<>();
         ObjectDeserializer<TestPojo> objectDeserializer = new ObjectDeserializer<>(TestPojo.class);
 
         // when

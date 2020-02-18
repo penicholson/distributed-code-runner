@@ -1,9 +1,7 @@
 package pl.petergood.dcr.jail;
 
 import com.google.common.io.Files;
-import com.google.common.io.Resources;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import pl.petergood.dcr.shell.ExecutionResult;
 import pl.petergood.dcr.shell.ShellTerminalInteractor;
@@ -141,6 +139,22 @@ public class NsJailAcceptanceTest {
 
         // then
         Assertions.assertThat(thrownException).isInstanceOf(NsJailException.class);
+    }
+
+    @Test
+    public void verifyFileIsCreatedInJail() throws Exception {
+        // given
+        TerminalInteractor terminalInteractor = new ShellTerminalInteractor();
+        Jail jail = new NsJail(jailConfig, terminalInteractor);
+
+        // when
+        JailedFile jailedFile = jail.touchFile("a_test_file.txt", "this is a \n test!");
+
+        // then
+        Assertions.assertThat(jailedFile.getAbsolutePath()).isEqualTo("/nsjail/jail/a_test_file.txt");
+        Assertions.assertThat(jailedFile.exists()).isTrue();
+        String contents = Files.asCharSource(jailedFile, Charset.defaultCharset()).read();
+        Assertions.assertThat(contents).isEqualTo("this is a \n test!");
     }
 
 }

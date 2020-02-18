@@ -1,14 +1,14 @@
 package pl.petergood.dcr.messaging.schema;
 
-public class ProcessedSourceMessage {
+public class ProcessingResultMessage {
 
     private String languageId;
     private byte[] processedBytes;
 
-    public ProcessedSourceMessage() {
+    public ProcessingResultMessage() {
     }
 
-    public ProcessedSourceMessage(String languageId, byte[] processedBytes) {
+    public ProcessingResultMessage(String languageId, byte[] processedBytes) {
         this.languageId = languageId;
         this.processedBytes = processedBytes;
     }
