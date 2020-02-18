@@ -1,5 +1,3 @@
-# TODO: build nsjail binary in seperate build
-
 FROM openjdk:11-jdk
 RUN apt-get -y update && apt-get install -y \
     autoconf \
@@ -14,15 +12,11 @@ RUN apt-get -y update && apt-get install -y \
     make \
     pkg-config \
     protobuf-compiler \
-    maven \
     && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/google/nsjail.git
 RUN cd nsjail && make && mv /nsjail/nsjail /bin
+RUN rm -r -f /nsjail
 
-COPY . /dcr
-RUN cp /dcr/dcracceptancetests/test-nsjail.cfg /
-RUN chmod +x /dcr/tmp.sh
-
-#ENTRYPOINT ["mvn", "-f", "/dcr", "clean", "install", "-pl", "dcracceptancetests", "-am"]
-ENTRYPOINT ["/bin/bash", "/dcr/tmp.sh"]
+RUN apt-get remove -y \
+    git

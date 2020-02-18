@@ -1,5 +1,7 @@
 package pl.petergood.dcr.compilationworker.consumer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pl.petergood.dcr.compilationworker.config.JailConfiguration;
 import pl.petergood.dcr.compilationworker.job.CompilationJob;
 import pl.petergood.dcr.compilationworker.language.LanguageId;
@@ -29,6 +31,8 @@ public class ProcessingRequestEventHandler implements MessageReceivedEventHandle
     private MessageProducer<ProcessingResultMessage> processingResultMessageProducer;
     private MessageProducer<ProcessingFailureMessage> processingFailureMessageProducer;
 
+    private Logger LOG = LoggerFactory.getLogger(ProcessingRequestEventHandler.class);
+
     public ProcessingRequestEventHandler(JailConfiguration jailConfiguration,
                                          TerminalInteractor terminalInteractor,
                                          FileInteractor fileInteractor,
@@ -46,6 +50,8 @@ public class ProcessingRequestEventHandler implements MessageReceivedEventHandle
     }
 
     private void handleProcessingRequest(ProcessingRequestMessage processingRequest) {
+        LOG.info("Handling {} request", processingRequest.getLanguageId());
+
         Jail jail = JailFactory.createJail(jailConfiguration.getJailRootPath(), jailConfiguration.getJailConfigurationPath(), terminalInteractor);
 
         try {
@@ -58,8 +64,8 @@ public class ProcessingRequestEventHandler implements MessageReceivedEventHandle
                     processingResultMessageProducer, processingFailureMessageProducer);
             // TODO: Run on separate thread?
             compilationJob.run();
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (Exception ex) {
+            LOG.error(ex.getMessage());
         } finally {
             // TODO: should we have an acceptance test for this?
             jail.destroy();

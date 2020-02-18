@@ -9,6 +9,7 @@
         <module name="messaging" />
         <module name="shell" />
         <module name="dcracceptancetests" />
+        <module name="dcre2e" />
         <module name="compilationworker" />
       </profile>
     </annotationProcessing>
@@ -17,6 +18,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="compilationworker" options="-parameters" />
       <module name="dcracceptancetests" options="" />
+      <module name="dcre2e" options="-parameters" />
       <module name="shell" options="" />
     </option>
   </component>
