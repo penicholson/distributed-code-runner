@@ -10,4 +10,6 @@ public interface Jail {
     File getJailPath();
 
     JailedFile touchFile(String fileName, String contents) throws IOException;
+
+    void destroy();
 }

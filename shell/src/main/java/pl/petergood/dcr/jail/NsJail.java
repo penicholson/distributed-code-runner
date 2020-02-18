@@ -42,7 +42,7 @@ public class NsJail implements Jail {
             throw new IllegalStateException("U CRAZY?");
         }
 
-        terminalInteractor.exec(new String[] { "rm", "-r", "-f", jailConfig.getHostJailPath().getAbsolutePath() });
+        destroy();
         terminalInteractor.exec(new String[] { "mkdir", "-p", jailConfig.getHostJailPath().getAbsolutePath() });
         terminalInteractor.exec(new String[] { "mkdir", "-p", jailConfig.getAbsoluteJailPath().getAbsolutePath() });
     }
@@ -94,5 +94,10 @@ public class NsJail implements Jail {
     @Override
     public File getJailPath() {
         return jailConfig.getAbsoluteJailPath();
+    }
+
+    @Override
+    public void destroy() {
+        terminalInteractor.exec(new String[] { "rm", "-r", "-f", jailConfig.getHostJailPath().getAbsolutePath() });
     }
 }

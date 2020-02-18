@@ -157,4 +157,19 @@ public class NsJailAcceptanceTest {
         Assertions.assertThat(contents).isEqualTo("this is a \n test!");
     }
 
+    @Test
+    public void verifyJailIsDestroyed() throws Exception {
+        // given
+        TerminalInteractor terminalInteractor = new ShellTerminalInteractor();
+        Jail jail = new NsJail(jailConfig, terminalInteractor);
+        JailedFile jailedFile = jail.touchFile("test.txt", "hello there!");
+
+        // when
+        jail.destroy();
+
+        // then
+        Assertions.assertThat(jailConfig.getHostJailPath().exists()).isFalse();
+        Assertions.assertThat(jailedFile.exists()).isFalse();
+    }
+
 }

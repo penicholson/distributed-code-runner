@@ -46,8 +46,9 @@ public class ProcessingRequestEventHandler implements MessageReceivedEventHandle
     }
 
     private void handleProcessingRequest(ProcessingRequestMessage processingRequest) {
+        Jail jail = JailFactory.createJail(jailConfiguration.getJailRootPath(), jailConfiguration.getJailConfigurationPath(), terminalInteractor);
+
         try {
-            Jail jail = JailFactory.createJail(jailConfiguration.getJailRootPath(), jailConfiguration.getJailConfigurationPath(), terminalInteractor);
             LanguageId languageId = LanguageId.fromId(processingRequest.getLanguageId());
 
             JailedFile jailedSource = jail.touchFile("source." + languageId.getExtension(), processingRequest.getSource());
@@ -59,6 +60,9 @@ public class ProcessingRequestEventHandler implements MessageReceivedEventHandle
             compilationJob.run();
         } catch (IOException ex) {
             ex.printStackTrace();
+        } finally {
+            // TODO: should we have an acceptance test for this?
+            jail.destroy();
         }
     }
 }
