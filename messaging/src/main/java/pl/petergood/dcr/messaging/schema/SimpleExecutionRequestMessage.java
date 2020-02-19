@@ -1,16 +1,18 @@
 package pl.petergood.dcr.messaging.schema;
 
-public class SimpleExecutionRequest {
+public class SimpleExecutionRequestMessage {
 
     private String languageId;
     private byte[] processedBytes;
+    private String stdin;
 
-    public SimpleExecutionRequest() {
+    public SimpleExecutionRequestMessage() {
     }
 
-    public SimpleExecutionRequest(String languageId, byte[] processedBytes) {
+    public SimpleExecutionRequestMessage(String languageId, byte[] processedBytes, String stdin) {
         this.languageId = languageId;
         this.processedBytes = processedBytes;
+        this.stdin = stdin;
     }
 
     public String getLanguageId() {
@@ -27,5 +29,9 @@ public class SimpleExecutionRequest {
 
     public void setProcessedBytes(byte[] processedBytes) {
         this.processedBytes = processedBytes;
+    }
+
+    public String getStdin() {
+        return stdin;
     }
 }

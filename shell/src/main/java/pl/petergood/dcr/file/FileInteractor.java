@@ -8,4 +8,5 @@ public interface FileInteractor {
     byte[] readFileAsBytes(File file) throws IOException;
 
     void writeFileAsString(File file, String contents) throws IOException;
+    void writeFileAsBytes(File file, byte[] bytes) throws IOException;
 }

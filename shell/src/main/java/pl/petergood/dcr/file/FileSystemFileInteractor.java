@@ -21,4 +21,9 @@ public class FileSystemFileInteractor implements FileInteractor {
     public void writeFileAsString(File file, String contents) throws IOException {
         Files.asCharSink(file, Charset.defaultCharset()).write(contents);
     }
+
+    @Override
+    public void writeFileAsBytes(File file, byte[] bytes) throws IOException {
+        Files.asByteSink(file).write(bytes);
+    }
 }

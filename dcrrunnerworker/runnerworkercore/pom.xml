@@ -8,6 +8,11 @@
     <groupId>pl.petergood</groupId>
     <version>1.0-SNAPSHOT</version>
 
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>pl.petergood</groupId>
@@ -18,6 +23,12 @@
         <dependency>
             <groupId>pl.petergood</groupId>
             <artifactId>messaging</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>pl.petergood</groupId>
+            <artifactId>dcrlanguage</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
