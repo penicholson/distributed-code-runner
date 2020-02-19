@@ -1,4 +1,4 @@
-package pl.petergood.dcr.compilationworker.language;
+package pl.petergood.dcr.language;
 
 public enum LanguageId {
     CPP("CPP", "cpp");

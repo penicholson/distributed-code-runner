@@ -6,11 +6,14 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="messaging" />
+        <module name="dcrlanguage" />
+        <module name="dcrsimplerunnerworker" />
         <module name="shell" />
-        <module name="dcracceptancetests" />
-        <module name="dcre2e" />
+        <module name="messaging" />
         <module name="compilationworker" />
+        <module name="dcre2e" />
+        <module name="dcracceptancetests" />
+        <module name="runnerworkercore" />
       </profile>
     </annotationProcessing>
   </component>
@@ -19,6 +22,8 @@
       <module name="compilationworker" options="-parameters" />
       <module name="dcracceptancetests" options="" />
       <module name="dcre2e" options="-parameters" />
+      <module name="dcrrunnerworker" options="-parameters" />
+      <module name="dcrsimplerunnerworker" options="-parameters" />
       <module name="shell" options="" />
     </option>
   </component>

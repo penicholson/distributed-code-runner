@@ -4,10 +4,13 @@ import com.google.common.io.Files;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import pl.petergood.dcr.acceptancetests.AcceptanceTestsJailFactory;
-import pl.petergood.dcr.compilationworker.source.FileProgramSource;
-import pl.petergood.dcr.compilationworker.source.ProgramSource;
 import pl.petergood.dcr.jail.Jail;
 import pl.petergood.dcr.jail.JailedFile;
+import pl.petergood.dcr.language.LanguageId;
+import pl.petergood.dcr.language.processor.CppLanguageProcessor;
+import pl.petergood.dcr.language.processor.ProcessingResult;
+import pl.petergood.dcr.language.source.FileProgramSource;
+import pl.petergood.dcr.language.source.ProgramSource;
 
 import java.nio.charset.Charset;
 

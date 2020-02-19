@@ -1,11 +1,12 @@
-package pl.petergood.dcr.compilationworker.language;
+package pl.petergood.dcr.language.processor;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import pl.petergood.dcr.compilationworker.source.FileProgramSource;
 import pl.petergood.dcr.jail.Jail;
 import pl.petergood.dcr.jail.JailedFile;
+import pl.petergood.dcr.language.LanguageId;
+import pl.petergood.dcr.language.source.FileProgramSource;
 
 import java.io.File;
 
@@ -38,7 +39,7 @@ public class CppLanguageProcessorTest {
         Assertions.assertThat(result.getProcessedFile().getAbsolutePath()).isEqualTo(expectedPath);
 
         if (isWindows) {
-            verify(jailMock, times(1)).executeInJail(new String[] { "/usr/bin/g++", "C:\\jail\\program.cpp", "-o", "output" });
+            verify(jailMock,  times(1)).executeInJail(new String[] { "/usr/bin/g++", "C:\\jail\\program.cpp", "-o", "output" });
         } else {
             verify(jailMock, times(1)).executeInJail(new String[] { "/usr/bin/g++", "/jail/program.cpp", "-o", "output" });
         }

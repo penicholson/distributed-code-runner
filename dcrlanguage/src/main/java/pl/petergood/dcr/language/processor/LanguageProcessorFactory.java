@@ -1,8 +1,10 @@
-package pl.petergood.dcr.compilationworker.language;
+package pl.petergood.dcr.language.processor;
 
 import pl.petergood.dcr.jail.Jail;
+import pl.petergood.dcr.language.LanguageId;
+import pl.petergood.dcr.language.UnknownLanguageException;
 
-public class LanguageFactory {
+public class LanguageProcessorFactory {
 
     public static LanguageProcessor getLanguage(LanguageId languageId, Jail jail) {
         switch (languageId) {

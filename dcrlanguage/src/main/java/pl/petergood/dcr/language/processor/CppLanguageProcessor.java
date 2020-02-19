@@ -1,8 +1,8 @@
-package pl.petergood.dcr.compilationworker.language;
+package pl.petergood.dcr.language.processor;
 
-import pl.petergood.dcr.compilationworker.source.ProgramSource;
 import pl.petergood.dcr.jail.Jail;
 import pl.petergood.dcr.jail.JailedFile;
+import pl.petergood.dcr.language.source.ProgramSource;
 import pl.petergood.dcr.shell.ExecutionResult;
 
 public class CppLanguageProcessor implements LanguageProcessor {

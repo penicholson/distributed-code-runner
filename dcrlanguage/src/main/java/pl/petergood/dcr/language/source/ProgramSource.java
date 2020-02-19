@@ -1,7 +1,7 @@
-package pl.petergood.dcr.compilationworker.source;
+package pl.petergood.dcr.language.source;
 
-import pl.petergood.dcr.compilationworker.language.LanguageId;
 import pl.petergood.dcr.jail.JailedFile;
+import pl.petergood.dcr.language.LanguageId;
 
 public interface ProgramSource {
     JailedFile getJailedFile();

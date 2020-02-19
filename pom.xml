@@ -22,6 +22,8 @@
         <module>dcracceptancetests</module>
         <module>messaging</module>
         <module>dcre2e</module>
+        <module>dcrrunnerworker</module>
+        <module>dcrlanguage</module>
     </modules>
 
     <dependencies>

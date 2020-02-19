@@ -2,12 +2,12 @@ package pl.petergood.dcr.compilationworker.job;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pl.petergood.dcr.compilationworker.language.LanguageFactory;
-import pl.petergood.dcr.compilationworker.language.LanguageProcessor;
-import pl.petergood.dcr.compilationworker.language.ProcessingResult;
-import pl.petergood.dcr.compilationworker.source.ProgramSource;
 import pl.petergood.dcr.file.FileInteractor;
 import pl.petergood.dcr.jail.Jail;
+import pl.petergood.dcr.language.processor.LanguageProcessorFactory;
+import pl.petergood.dcr.language.processor.LanguageProcessor;
+import pl.petergood.dcr.language.processor.ProcessingResult;
+import pl.petergood.dcr.language.source.ProgramSource;
 import pl.petergood.dcr.messaging.MessageProducer;
 import pl.petergood.dcr.messaging.schema.ProcessingFailureMessage;
 import pl.petergood.dcr.messaging.schema.ProcessingResultMessage;
@@ -40,7 +40,7 @@ public class CompilationJob implements Runnable {
     public void run() {
         LOG.info("Processing language {}", programSource.getLanguageId());
 
-        LanguageProcessor languageProcessor = LanguageFactory.getLanguage(programSource.getLanguageId(), jail);
+        LanguageProcessor languageProcessor = LanguageProcessorFactory.getLanguage(programSource.getLanguageId(), jail);
         ProcessingResult processingResult = languageProcessor.process(programSource);
 
         if (!processingResult.getExecutionResult().getStdErr().isEmpty()) {

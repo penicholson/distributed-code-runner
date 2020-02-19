@@ -1,4 +1,4 @@
-package pl.petergood.dcr.compilationworker.language;
+package pl.petergood.dcr.language.processor;
 
 import pl.petergood.dcr.jail.JailedFile;
 import pl.petergood.dcr.shell.ExecutionResult;

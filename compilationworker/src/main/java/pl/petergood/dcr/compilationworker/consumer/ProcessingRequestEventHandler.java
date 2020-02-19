@@ -4,14 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.petergood.dcr.compilationworker.config.JailConfiguration;
 import pl.petergood.dcr.compilationworker.job.CompilationJob;
-import pl.petergood.dcr.compilationworker.language.LanguageId;
 import pl.petergood.dcr.compilationworker.producer.MessageProducerConfiguration;
-import pl.petergood.dcr.compilationworker.source.FileProgramSource;
-import pl.petergood.dcr.compilationworker.source.ProgramSource;
 import pl.petergood.dcr.file.FileInteractor;
 import pl.petergood.dcr.jail.Jail;
 import pl.petergood.dcr.jail.JailFactory;
 import pl.petergood.dcr.jail.JailedFile;
+import pl.petergood.dcr.language.LanguageId;
+import pl.petergood.dcr.language.source.FileProgramSource;
+import pl.petergood.dcr.language.source.ProgramSource;
 import pl.petergood.dcr.messaging.MessageProducer;
 import pl.petergood.dcr.messaging.MessageReceivedEventHandler;
 import pl.petergood.dcr.messaging.schema.ProcessingFailureMessage;
@@ -19,7 +19,6 @@ import pl.petergood.dcr.messaging.schema.ProcessingRequestMessage;
 import pl.petergood.dcr.messaging.schema.ProcessingResultMessage;
 import pl.petergood.dcr.shell.TerminalInteractor;
 
-import java.io.IOException;
 import java.util.List;
 
 public class ProcessingRequestEventHandler implements MessageReceivedEventHandler<ProcessingRequestMessage> {
