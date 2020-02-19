@@ -1,11 +1,13 @@
 package pl.petergood.dcr.jail;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pl.petergood.dcr.file.FileInteractor;
 import pl.petergood.dcr.shell.ExecutionResult;
+import pl.petergood.dcr.shell.FileExecutionResult;
 import pl.petergood.dcr.shell.TerminalInteractor;
 
 import java.io.File;
@@ -29,6 +31,7 @@ public class NsJailTest {
             .build();
 
     String absoluteJailPath = isWindows ? "C:\\usr\\nsjail\\jail" : "/usr/nsjail/jail";
+    String stdinFilePath = isWindows ? "C:\\usr\\nsjail\\stdin" : "/usr/nsjail/stdin";
     String stdoutFilePath = isWindows ? "C:\\usr\\nsjail\\stdout" : "/usr/nsjail/stdout";
     String stderrFilePath = isWindows ? "C:\\usr\\nsjail\\stderr" : "/usr/nsjail/stderr";
     String jailLogFilePath = isWindows ? "C:\\usr\\nsjail\\jail.log" : "/usr/nsjail/jail.log";
@@ -50,7 +53,21 @@ public class NsJailTest {
     }
 
     @Test
-    public void verifyNsJailIsCalled() throws IOException {
+    public void verifyOutputFilesAreReturned() throws Exception {
+        // given
+        when(terminalInteractor.exec(expectedCommand)).thenReturn(new ExecutionResult(0, "", ""));
+        when(fileInteractor.readFileAsString(new File(jailLogFilePath))).thenReturn("");
+
+        // when
+        FileExecutionResult result = jail.executeAndReturnOutputFiles(new String[] { "echo", "hello" });
+
+        // then
+        Assertions.assertThat(result.getStdOutFile().getParent()).isEqualTo(hostJailPath);
+        Assertions.assertThat(result.getStdOutFile().getName()).isEqualTo("stdout");
+    }
+
+    @Test
+    public void verifyNsJailIsCalled() throws Exception {
         // given
         when(terminalInteractor.exec(expectedCommand)).thenReturn(new ExecutionResult(0, "", ""));
         when(fileInteractor.readFileAsString(new File(stdoutFilePath))).thenReturn("output");
@@ -58,13 +75,31 @@ public class NsJailTest {
         when(fileInteractor.readFileAsString(new File(jailLogFilePath))).thenReturn("");
 
         // when
-        ExecutionResult result = jail.executeInJail(new String[] { "echo", "hello" });
+        ExecutionResult result = jail.executeAndReturnOutputContent(new String[] { "echo", "hello" });
 
         // then
         verify(terminalInteractor, times(1)).exec(expectedCommand);
 
         Assertions.assertThat(result.getStdOut()).isEqualTo("output");
         Assertions.assertThat(result.getStdErr()).isEmpty();
+    }
+
+    @Test
+    public void verifyNsJailIsCalledWithInputFile() throws Exception {
+        // given
+        String[] expectedCommandWithInput = ArrayUtils.addAll(expectedCommand, "<", stdinFilePath);
+        when(terminalInteractor.exec(expectedCommandWithInput)).thenReturn(new ExecutionResult(0, "", ""));
+        when(fileInteractor.readFileAsString(new File(stdoutFilePath))).thenReturn("output");
+        when(fileInteractor.readFileAsString(new File(stderrFilePath))).thenReturn("");
+        when(fileInteractor.readFileAsString(new File(jailLogFilePath))).thenReturn("");
+
+        // when
+        FileExecutionResult result = jail.executeWithInputFileAndReturnOutputFiles(new String[] { "echo", "hello" }, new File(stdinFilePath));
+
+        // then
+        verify(terminalInteractor, times(1)).exec(expectedCommandWithInput);
+        Assertions.assertThat(result.getStdOutFile().getAbsolutePath()).isEqualTo(stdoutFilePath);
+        Assertions.assertThat(result.getStdErrFile().getAbsolutePath()).isEqualTo(stderrFilePath);
     }
 
     @Test
@@ -84,7 +119,7 @@ public class NsJailTest {
         when(fileInteractor.readFileAsString(new File(jailLogFilePath))).thenReturn(rawJailLogs);
 
         // when
-        Throwable thrownException = Assertions.catchThrowable(() -> jail.executeInJail(new String[] { "echo", "hello" }));
+        Throwable thrownException = Assertions.catchThrowable(() -> jail.executeAndReturnOutputContent(new String[] { "echo", "hello" }));
 
         // then
         Assertions.assertThat(thrownException)

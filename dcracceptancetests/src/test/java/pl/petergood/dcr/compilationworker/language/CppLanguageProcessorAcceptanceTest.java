@@ -20,7 +20,7 @@ public class CppLanguageProcessorAcceptanceTest {
     public void verifyCppSourceIsCompiled() throws Exception {
         // given
         Jail jail = AcceptanceTestsJailFactory.getJail();
-        JailedFile jailedFile = new JailedFile(jail.getJailPath(), "source.cpp", jail);
+        JailedFile jailedFile = new JailedFile(jail.getAbsoluteJailPath(), "source.cpp", jail);
         CppLanguageProcessor cppLanguage = new CppLanguageProcessor(jail);
         String source = "#include <iostream>\n" +
                 "\n" +
@@ -46,7 +46,7 @@ public class CppLanguageProcessorAcceptanceTest {
     public void verifyInvalidCppSourceIsNotCompiled() throws Exception {
         // given
         Jail jail = AcceptanceTestsJailFactory.getJail();
-        JailedFile jailedFile = new JailedFile(jail.getJailPath(), "source.cpp", jail);
+        JailedFile jailedFile = new JailedFile(jail.getAbsoluteJailPath(), "source.cpp", jail);
         CppLanguageProcessor cppLanguage = new CppLanguageProcessor(jail);
         String source = " #include <iostream>\n" +
                 "\n" +

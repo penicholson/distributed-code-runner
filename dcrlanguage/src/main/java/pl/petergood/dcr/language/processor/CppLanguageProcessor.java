@@ -15,13 +15,13 @@ public class CppLanguageProcessor implements LanguageProcessor {
 
     @Override
     public ProcessingResult process(ProgramSource programSource) {
-        ExecutionResult executionResult = jail.executeInJail(new String[] {
+        ExecutionResult executionResult = jail.executeAndReturnOutputContent(new String[] {
                 "/usr/bin/g++",
                 programSource.getJailedFile().getAbsolutePath(),
                 "-o",
                 "output"
         });
 
-        return new ProcessingResult(new JailedFile(jail.getJailPath(), "output", jail), executionResult);
+        return new ProcessingResult(new JailedFile(jail.getAbsoluteJailPath(), "output", jail), executionResult);
     }
 }

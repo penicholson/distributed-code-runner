@@ -4,6 +4,7 @@ import com.google.common.io.Files;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import pl.petergood.dcr.shell.ExecutionResult;
+import pl.petergood.dcr.shell.FileExecutionResult;
 import pl.petergood.dcr.shell.ShellTerminalInteractor;
 import pl.petergood.dcr.shell.TerminalInteractor;
 
@@ -25,7 +26,7 @@ public class NsJailAcceptanceTest {
         Jail jail = new NsJail(jailConfig, terminalInteractor);
 
         // when
-        ExecutionResult result = jail.executeInJail(new String[] { "/bin/echo", "hello world" });
+        ExecutionResult result = jail.executeAndReturnOutputContent(new String[] { "/bin/echo", "hello world" });
 
         // then
         Assertions.assertThat(result.getStdOut()).isEqualTo("hello world\n");
@@ -40,7 +41,7 @@ public class NsJailAcceptanceTest {
         Jail jail = new NsJail(jailConfig, terminalInteractor);
 
         // when
-        ExecutionResult result = jail.executeInJail(new String[] { "/usr/bin/g++", "nonexistentfile" });
+        ExecutionResult result = jail.executeAndReturnOutputContent(new String[] { "/usr/bin/g++", "nonexistentfile" });
 
         // then
         Assertions.assertThat(result.getStdOut()).isEmpty();
@@ -55,7 +56,7 @@ public class NsJailAcceptanceTest {
         Jail jail = new NsJail(jailConfig, terminalInteractor);
 
         // when
-        ExecutionResult result = jail.executeInJail(new String[] { "/bin/bash", "-c", "\"exit 31\"" });
+        ExecutionResult result = jail.executeAndReturnOutputContent(new String[] { "/bin/bash", "-c", "\"exit 31\"" });
 
         // then
         Assertions.assertThat(result.getStdOut()).isEmpty();
@@ -70,7 +71,7 @@ public class NsJailAcceptanceTest {
         Jail jail = new NsJail(jailConfig, terminalInteractor);
 
         // when
-        ExecutionResult result = jail.executeInJail(new String[] { "/bin/pwd" });
+        ExecutionResult result = jail.executeAndReturnOutputContent(new String[] { "/bin/pwd" });
 
         // then
         Assertions.assertThat(result.getStdOut()).isEqualTo("/nsjail/jail\n");
@@ -85,7 +86,7 @@ public class NsJailAcceptanceTest {
         Jail jail = new NsJail(jailConfig, terminalInteractor);
 
         // when
-        ExecutionResult result = jail.executeInJail(new String[] { "/usr/bin/touch", "test_file" });
+        ExecutionResult result = jail.executeAndReturnOutputContent(new String[] { "/usr/bin/touch", "test_file" });
 
         // then
         Assertions.assertThat(result.getStdOut()).isEmpty();
@@ -100,7 +101,7 @@ public class NsJailAcceptanceTest {
         Jail jail = new NsJail(jailConfig, terminalInteractor);
 
         // when
-        ExecutionResult result = jail.executeInJail(new String[] { "/usr/bin/touch", "/test_file" });
+        ExecutionResult result = jail.executeAndReturnOutputContent(new String[] { "/usr/bin/touch", "/test_file" });
 
         // then
         Assertions.assertThat(result.getStdOut()).isEmpty();
@@ -120,7 +121,7 @@ public class NsJailAcceptanceTest {
         Jail jail = new NsJail(jailConfig, terminalInteractor);
 
         // when
-        ExecutionResult result = jail.executeInJail(new String[] { "/usr/bin/touch", "test_file" });
+        ExecutionResult result = jail.executeAndReturnOutputContent(new String[] { "/usr/bin/touch", "test_file" });
 
         // then
         Assertions.assertThat(result.getStdOut()).isEmpty();
@@ -135,7 +136,7 @@ public class NsJailAcceptanceTest {
         Jail jail = new NsJail(jailConfig, terminalInteractor);
 
         // when
-        Throwable thrownException = Assertions.catchThrowable(() -> jail.executeInJail(new String[] { "/bin/this_file_does_not_exist" }));
+        Throwable thrownException = Assertions.catchThrowable(() -> jail.executeAndReturnOutputContent(new String[] { "/bin/this_file_does_not_exist" }));
 
         // then
         Assertions.assertThat(thrownException).isInstanceOf(NsJailException.class);
@@ -170,6 +171,38 @@ public class NsJailAcceptanceTest {
         // then
         Assertions.assertThat(jailConfig.getHostJailPath().exists()).isFalse();
         Assertions.assertThat(jailedFile.exists()).isFalse();
+    }
+
+    @Test
+    public void verifyStdInContentIsUsed() throws Exception {
+        // given
+        String stdin = "hello there!";
+        TerminalInteractor terminalInteractor = new ShellTerminalInteractor();
+        Jail jail = new NsJail(jailConfig, terminalInteractor);
+
+        // when
+        FileExecutionResult result = jail.executeWithInputContentAndReturnOutputFiles(new String[] { "/bin/cat" }, stdin);
+
+        // then
+        String content = Files.asCharSource(result.getStdOutFile(), Charset.defaultCharset()).read();
+        Assertions.assertThat(content).isEqualTo("hello there!");
+    }
+
+    @Test
+    public void verifyStdInFileIsUsed() throws Exception {
+        // given
+        String stdin = "hello again!";
+        TerminalInteractor terminalInteractor = new ShellTerminalInteractor();
+        Jail jail = new NsJail(jailConfig, terminalInteractor);
+        File inputFile = new File(jail.getHostJailPath(), "stdin");
+        Files.asCharSink(inputFile, Charset.defaultCharset()).write(stdin);
+
+        // when
+        FileExecutionResult result = jail.executeWithInputFileAndReturnOutputFiles(new String[] { "/bin/cat" }, inputFile);
+
+        // then
+        String content = Files.asCharSource(result.getStdOutFile(), Charset.defaultCharset()).read();
+        Assertions.assertThat(content).isEqualTo("hello again!");
     }
 
 }
