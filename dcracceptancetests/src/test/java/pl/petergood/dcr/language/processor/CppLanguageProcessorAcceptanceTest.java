@@ -1,4 +1,4 @@
-package pl.petergood.dcr.compilationworker.language;
+package pl.petergood.dcr.language.processor;
 
 import com.google.common.io.Files;
 import org.assertj.core.api.Assertions;
@@ -6,9 +6,8 @@ import org.junit.jupiter.api.Test;
 import pl.petergood.dcr.acceptancetests.AcceptanceTestsJailFactory;
 import pl.petergood.dcr.jail.Jail;
 import pl.petergood.dcr.jail.JailedFile;
+import pl.petergood.dcr.jail.NsJailDirectoryMode;
 import pl.petergood.dcr.language.LanguageId;
-import pl.petergood.dcr.language.processor.CppLanguageProcessor;
-import pl.petergood.dcr.language.processor.ProcessingResult;
 import pl.petergood.dcr.language.source.FileProgramSource;
 import pl.petergood.dcr.language.source.ProgramSource;
 
@@ -19,7 +18,7 @@ public class CppLanguageProcessorAcceptanceTest {
     @Test
     public void verifyCppSourceIsCompiled() throws Exception {
         // given
-        Jail jail = AcceptanceTestsJailFactory.getJail();
+        Jail jail = AcceptanceTestsJailFactory.getJail(NsJailDirectoryMode.READ_WRITE);
         JailedFile jailedFile = new JailedFile(jail.getAbsoluteJailPath(), "source.cpp", jail);
         CppLanguageProcessor cppLanguage = new CppLanguageProcessor(jail);
         String source = "#include <iostream>\n" +
@@ -45,7 +44,7 @@ public class CppLanguageProcessorAcceptanceTest {
     @Test
     public void verifyInvalidCppSourceIsNotCompiled() throws Exception {
         // given
-        Jail jail = AcceptanceTestsJailFactory.getJail();
+        Jail jail = AcceptanceTestsJailFactory.getJail(NsJailDirectoryMode.READ_WRITE);
         JailedFile jailedFile = new JailedFile(jail.getAbsoluteJailPath(), "source.cpp", jail);
         CppLanguageProcessor cppLanguage = new CppLanguageProcessor(jail);
         String source = " #include <iostream>\n" +

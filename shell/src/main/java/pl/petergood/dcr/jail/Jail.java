@@ -17,6 +17,9 @@ public interface Jail {
     File getHostJailPath();
 
     JailedFile touchFile(String fileName, String contents) throws IOException;
+    JailedFile jailFile(File file) throws IOException;
+
+    ExecutableFile makeExecutable(JailedFile file);
 
     void destroy();
 }

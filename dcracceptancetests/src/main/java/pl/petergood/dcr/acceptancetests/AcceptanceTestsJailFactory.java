@@ -10,11 +10,11 @@ import java.io.File;
 
 public class AcceptanceTestsJailFactory {
 
-    public static Jail getJail() {
+    public static Jail getJail(NsJailDirectoryMode directoryMode) {
         NsJailConfig jailConfig = new NsJailConfig.Builder()
                 .setConfig("/test-nsjail.cfg")
                 .setHostJailPath(new File("/nsjail"))
-                .setJailDirectoryName("jail", NsJailDirectoryMode.READ_WRITE)
+                .setJailDirectoryName("jail", directoryMode)
                 .build();
 
         return new NsJail(jailConfig, new ShellTerminalInteractor());

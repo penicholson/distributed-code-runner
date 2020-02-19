@@ -205,4 +205,23 @@ public class NsJailAcceptanceTest {
         Assertions.assertThat(content).isEqualTo("hello again!");
     }
 
+    @Test
+    public void verifyFileIsCopiedIntoJail() throws Exception {
+        // given
+        String contents = "this is a test!";
+        File file = new File("/discovery.txt");
+        Files.asCharSink(file, Charset.defaultCharset()).write(contents);
+
+        TerminalInteractor terminalInteractor = new ShellTerminalInteractor();
+        Jail jail = new NsJail(jailConfig, terminalInteractor);
+
+        // when
+        JailedFile jailedFile = jail.jailFile(file);
+
+        // then
+        Assertions.assertThat(jailedFile.exists()).isTrue();
+        Assertions.assertThat(file.exists()).isTrue();
+        Assertions.assertThat(Files.asCharSource(jailedFile, Charset.defaultCharset()).read()).isEqualTo("this is a test!");
+    }
+
 }

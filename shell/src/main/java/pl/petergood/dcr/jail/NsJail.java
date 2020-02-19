@@ -122,6 +122,19 @@ public class NsJail implements Jail {
     }
 
     @Override
+    public JailedFile jailFile(File file) throws IOException {
+        JailedFile jailedFile = new JailedFile(jailConfig.getAbsoluteJailPath(), file.getName(), this);
+        Files.copy(file, jailedFile);
+        return jailedFile;
+    }
+
+    @Override
+    public ExecutableFile makeExecutable(JailedFile file) {
+        terminalInteractor.exec(new String[] { "/bin/chmod", "+x", file.getAbsolutePath() });
+        return ExecutableFile.fromJailedFile(file);
+    }
+
+    @Override
     public File getAbsoluteJailPath() {
         return jailConfig.getAbsoluteJailPath();
     }

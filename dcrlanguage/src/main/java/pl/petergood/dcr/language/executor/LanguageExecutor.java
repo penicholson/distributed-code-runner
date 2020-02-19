@@ -1,7 +1,11 @@
 package pl.petergood.dcr.language.executor;
 
-import pl.petergood.dcr.jail.JailedFile;
+import pl.petergood.dcr.jail.ExecutableFile;
+import pl.petergood.dcr.shell.FileExecutionResult;
+
+import java.io.File;
 
 public interface LanguageExecutor {
-    void execute(JailedFile executable, JailedFile stdin, JailedFile stdout);
+    FileExecutionResult execute(ExecutableFile executable);
+    FileExecutionResult execute(ExecutableFile executable, File stdinFile);
 }
