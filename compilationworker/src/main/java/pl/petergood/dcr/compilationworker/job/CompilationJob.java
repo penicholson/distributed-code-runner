@@ -2,6 +2,7 @@ package pl.petergood.dcr.compilationworker.job;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pl.petergood.dcr.compilationworker.forwarder.ForwardingStrategy;
 import pl.petergood.dcr.file.FileInteractor;
 import pl.petergood.dcr.jail.Jail;
 import pl.petergood.dcr.language.processor.LanguageProcessorFactory;
@@ -10,6 +11,7 @@ import pl.petergood.dcr.language.processor.ProcessingResult;
 import pl.petergood.dcr.language.source.ProgramSource;
 import pl.petergood.dcr.messaging.MessageProducer;
 import pl.petergood.dcr.messaging.schema.ProcessingFailureMessage;
+import pl.petergood.dcr.messaging.schema.ProcessingRequestMessage;
 import pl.petergood.dcr.messaging.schema.ProcessingResultMessage;
 
 import java.io.IOException;
@@ -19,7 +21,7 @@ public class CompilationJob implements Runnable {
     private ProgramSource programSource;
     private Jail jail;
     private FileInteractor fileInteractor;
-    private MessageProducer<ProcessingResultMessage> messageProducer;
+    private ForwardingStrategy forwardingStrategy;
     private MessageProducer<ProcessingFailureMessage> failureMessageProducer;
 
     private Logger LOG = LoggerFactory.getLogger(CompilationJob.class);
@@ -27,12 +29,12 @@ public class CompilationJob implements Runnable {
     public CompilationJob(ProgramSource programSource,
                           Jail jail,
                           FileInteractor fileInteractor,
-                          MessageProducer<ProcessingResultMessage> messageProducer,
+                          ForwardingStrategy forwardingStrategy,
                           MessageProducer<ProcessingFailureMessage> failureMessageProducer) {
         this.programSource = programSource;
         this.jail = jail;
         this.fileInteractor = fileInteractor;
-        this.messageProducer = messageProducer;
+        this.forwardingStrategy = forwardingStrategy;
         this.failureMessageProducer = failureMessageProducer;
     }
 
@@ -54,8 +56,7 @@ public class CompilationJob implements Runnable {
             byte[] processedBytes = fileInteractor.readFileAsBytes(processingResult.getProcessedFile());
 
             LOG.info("Processing {} resulted in success", programSource.getLanguageId());
-            ProcessingResultMessage message = new ProcessingResultMessage(programSource.getLanguageId().toString(), processedBytes);
-            messageProducer.publish(message);
+            forwardingStrategy.forwardMessage(processedBytes);
         } catch (IOException e) {
             LOG.error(e.getMessage());
         }

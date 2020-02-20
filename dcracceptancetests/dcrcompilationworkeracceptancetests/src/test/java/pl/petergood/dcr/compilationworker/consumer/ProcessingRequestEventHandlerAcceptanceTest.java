@@ -17,14 +17,13 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.support.TestPropertySourceUtils;
 import pl.petergood.dcr.compilationworker.CompilationWorkerApplication;
 import pl.petergood.dcr.compilationworker.configuration.JailConfiguration;
+import pl.petergood.dcr.compilationworker.forwarder.ForwardingStrategyFactory;
 import pl.petergood.dcr.compilationworker.producer.MessageProducerConfiguration;
 import pl.petergood.dcr.file.FileInteractor;
 import pl.petergood.dcr.messaging.KafkaMessageConsumer;
 import pl.petergood.dcr.messaging.MessageConsumer;
 import pl.petergood.dcr.messaging.deserializer.ObjectDeserializer;
-import pl.petergood.dcr.messaging.schema.ProcessingFailureMessage;
-import pl.petergood.dcr.messaging.schema.ProcessingRequestMessage;
-import pl.petergood.dcr.messaging.schema.ProcessingResultMessage;
+import pl.petergood.dcr.messaging.schema.*;
 import pl.petergood.dcr.shell.TerminalInteractor;
 
 import java.time.Duration;
@@ -65,6 +64,9 @@ public class ProcessingRequestEventHandlerAcceptanceTest {
     @Autowired
     private MessageProducerConfiguration messageProducerConfiguration;
 
+    @Autowired
+    private ForwardingStrategyFactory forwardingStrategyFactory;
+
     @Test
     public void verifyCompilationIsCompleted() {
         // given
@@ -87,7 +89,8 @@ public class ProcessingRequestEventHandlerAcceptanceTest {
                 "\treturn 0;\n" +
                 "}";
         List<ProcessingRequestMessage> requests = Collections.singletonList(new ProcessingRequestMessage("CPP", source));
-        ProcessingRequestEventHandler eventHandler = new ProcessingRequestEventHandler(jailConfiguration, terminalInteractor, fileInteractor, messageProducerConfiguration);
+        ProcessingRequestEventHandler eventHandler = new ProcessingRequestEventHandler(jailConfiguration, terminalInteractor,
+                fileInteractor, messageProducerConfiguration, forwardingStrategyFactory);
 
         // when
         eventHandler.handleMessageBatch(requests);
@@ -122,7 +125,8 @@ public class ProcessingRequestEventHandlerAcceptanceTest {
                 "\treturn 0;\n" +
                 "}";
         List<ProcessingRequestMessage> requests = Collections.singletonList(new ProcessingRequestMessage("CPP", source));
-        ProcessingRequestEventHandler eventHandler = new ProcessingRequestEventHandler(jailConfiguration, terminalInteractor, fileInteractor, messageProducerConfiguration);
+        ProcessingRequestEventHandler eventHandler = new ProcessingRequestEventHandler(jailConfiguration, terminalInteractor,
+                fileInteractor, messageProducerConfiguration, forwardingStrategyFactory);
 
         // when
         eventHandler.handleMessageBatch(requests);
@@ -131,6 +135,44 @@ public class ProcessingRequestEventHandlerAcceptanceTest {
         Awaitility.await().atMost(Duration.ofSeconds(10)).until(() -> receivedMessages.size() == 1);
         List<ProcessingFailureMessage> messages = new ArrayList<>(receivedMessages);
         Assertions.assertThat(messages.get(0).getError()).contains("error: 'asdf' was not declared in this scope");
+    }
+
+    @Test
+    public void verifySimpleExecutionRequestIsCreated() {
+        // given
+        Properties properties = new Properties();
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerAddress);
+        properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        properties.put(ConsumerConfig.GROUP_ID_CONFIG, "test-group");
+        MessageConsumer<SimpleExecutionRequestMessage> consumer = new KafkaMessageConsumer<>(properties, "simple-execution-request", Duration.ofSeconds(1),
+                new StringDeserializer(), new ObjectDeserializer<>(SimpleExecutionRequestMessage.class));
+        Collection<SimpleExecutionRequestMessage> receivedMessages = new LinkedBlockingDeque<>();
+        consumer.setOnMessageReceived(receivedMessages::addAll);
+        Thread t = new Thread((Runnable) consumer);
+        t.start();
+
+        String source = "#include <iostream>\n" +
+                "\n" +
+                "using namespace std;\n" +
+                "\n" +
+                "int main() {\n" +
+                "\treturn 0;\n" +
+                "}";
+        ProcessingRequestMessage processingRequestMessage = new ProcessingRequestMessage("CPP", source);
+        processingRequestMessage.setForwardingType(ForwardingType.SIMPLE);
+        processingRequestMessage.setStdin("hello world!");
+        ProcessingRequestEventHandler eventHandler = new ProcessingRequestEventHandler(jailConfiguration, terminalInteractor,
+                fileInteractor, messageProducerConfiguration, forwardingStrategyFactory);
+
+        // when
+        eventHandler.handleMessageBatch(Collections.singletonList(processingRequestMessage));
+
+        // then
+        Awaitility.await().atMost(Duration.ofSeconds(10)).until(() -> receivedMessages.size() == 1);
+        SimpleExecutionRequestMessage executionRequest = receivedMessages.iterator().next();
+        Assertions.assertThat(executionRequest.getLanguageId()).isEqualTo("CPP");
+        Assertions.assertThat(executionRequest.getProcessedBytes().length).isEqualTo(16944);
+        Assertions.assertThat(executionRequest.getStdin()).isEqualTo("hello world!");
     }
 
 }

@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import pl.petergood.dcr.compilationworker.configuration.BrokerConfiguration;
 import pl.petergood.dcr.compilationworker.configuration.JailConfiguration;
+import pl.petergood.dcr.compilationworker.forwarder.ForwardingStrategyFactory;
 import pl.petergood.dcr.compilationworker.producer.MessageProducerConfiguration;
 import pl.petergood.dcr.file.FileInteractor;
 import pl.petergood.dcr.messaging.KafkaMessageConsumer;
@@ -29,6 +30,7 @@ public class MessageConsumerConfiguration {
     private TerminalInteractor terminalInteractor;
     private FileInteractor fileInteractor;
     private MessageProducerConfiguration messageProducerConfiguration;
+    private ForwardingStrategyFactory forwardingStrategyFactory;
 
     private MessageConsumer<ProcessingRequestMessage> messageConsumer;
 
@@ -37,13 +39,15 @@ public class MessageConsumerConfiguration {
                                         JailConfiguration jailConfiguration,
                                         TerminalInteractor terminalInteractor,
                                         FileInteractor fileInteractor,
-                                        MessageProducerConfiguration messageProducerConfiguration) {
+                                        MessageProducerConfiguration messageProducerConfiguration,
+                                        ForwardingStrategyFactory forwardingStrategyFactory) {
         this.taskExecutor = threadPoolTaskExecutor;
         this.brokerConfiguration = brokerConfiguration;
         this.jailConfiguration = jailConfiguration;
         this.terminalInteractor = terminalInteractor;
         this.fileInteractor = fileInteractor;
         this.messageProducerConfiguration = messageProducerConfiguration;
+        this.forwardingStrategyFactory = forwardingStrategyFactory;
     }
 
     @PostConstruct
@@ -55,7 +59,7 @@ public class MessageConsumerConfiguration {
         messageConsumer = new KafkaMessageConsumer<>(properties, brokerConfiguration.getProcessingRequestTopicName(),
                 Duration.ofSeconds(2), new StringDeserializer(), new ObjectDeserializer<>(ProcessingRequestMessage.class));
         messageConsumer.setOnMessageReceived(new ProcessingRequestEventHandler(jailConfiguration, terminalInteractor,
-                fileInteractor, messageProducerConfiguration));
+                fileInteractor, messageProducerConfiguration, forwardingStrategyFactory));
 
         taskExecutor.execute((Runnable) messageConsumer);
     }

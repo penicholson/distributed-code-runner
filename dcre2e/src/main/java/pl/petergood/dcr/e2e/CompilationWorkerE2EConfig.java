@@ -15,13 +15,14 @@ import pl.petergood.dcr.messaging.deserializer.ObjectDeserializer;
 import pl.petergood.dcr.messaging.schema.ProcessingFailureMessage;
 import pl.petergood.dcr.messaging.schema.ProcessingRequestMessage;
 import pl.petergood.dcr.messaging.schema.ProcessingResultMessage;
+import pl.petergood.dcr.messaging.schema.SimpleExecutionRequestMessage;
 import pl.petergood.dcr.messaging.serializer.ObjectSerializer;
 
 import java.time.Duration;
 import java.util.Properties;
 
 @Configuration
-public class E2EConfig {
+public class CompilationWorkerE2EConfig {
     @Value("${dcr.e2e.kafka.bootstrap.urls:192.168.99.100:9092}")
     private String kafkaBootstrapUrls;
 
@@ -33,6 +34,9 @@ public class E2EConfig {
 
     @Value("${dcr.e2e.processing.failure.topic.name:processing-failure}")
     private String processingFailureTopicName;
+
+    @Value("${dcr.e2e.simpleexecution.request.topic.name:simple-execution-request}")
+    private String simpleExecutionRequestTopicName;
 
     public String getKafkaBootstrapUrls() {
         return kafkaBootstrapUrls;
@@ -48,14 +52,20 @@ public class E2EConfig {
 
     @Bean
     public MessageConsumer<ProcessingResultMessage> createProcessingResultConsumer() {
-        return new KafkaMessageConsumer<>(createConsumerProperties("e2e-result"), processingResultTopicName,
+        return new KafkaMessageConsumer<>(createConsumerProperties("e2e-processing-result"), processingResultTopicName,
                 Duration.ofSeconds(1), new StringDeserializer(), new ObjectDeserializer<>(ProcessingResultMessage.class));
     }
 
     @Bean
     public MessageConsumer<ProcessingFailureMessage> createProcessingFailureConsumer() {
-        return new KafkaMessageConsumer<>(createConsumerProperties("e2e-failure"), processingFailureTopicName,
+        return new KafkaMessageConsumer<>(createConsumerProperties("e2e-processing-failure"), processingFailureTopicName,
                 Duration.ofSeconds(1), new StringDeserializer(), new ObjectDeserializer<>(ProcessingFailureMessage.class));
+    }
+
+    @Bean
+    public MessageConsumer<SimpleExecutionRequestMessage> createSimpleExecutionRequestConsumer() {
+        return new KafkaMessageConsumer<>(createConsumerProperties("e2e-execution-request"), simpleExecutionRequestTopicName,
+                Duration.ofSeconds(1), new StringDeserializer(), new ObjectDeserializer<>(SimpleExecutionRequestMessage.class));
     }
 
     private Properties createConsumerProperties(String groupId) {

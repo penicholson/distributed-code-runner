@@ -8,6 +8,7 @@ import pl.petergood.dcr.messaging.KafkaMessageProducer;
 import pl.petergood.dcr.messaging.MessageProducer;
 import pl.petergood.dcr.messaging.schema.ProcessingFailureMessage;
 import pl.petergood.dcr.messaging.schema.ProcessingResultMessage;
+import pl.petergood.dcr.messaging.schema.SimpleExecutionRequestMessage;
 import pl.petergood.dcr.messaging.serializer.ObjectSerializer;
 
 import javax.annotation.PostConstruct;
@@ -21,6 +22,7 @@ public class MessageProducerConfiguration {
 
     private MessageProducer<ProcessingResultMessage> processingResultProducer;
     private MessageProducer<ProcessingFailureMessage> processingFailureProducer;
+    private MessageProducer<SimpleExecutionRequestMessage> simpleExecutionRequestProducer;
 
     public MessageProducerConfiguration(BrokerConfiguration brokerConfiguration) {
         this.brokerConfiguration = brokerConfiguration;
@@ -28,7 +30,7 @@ public class MessageProducerConfiguration {
 
     // TODO: what should we do if topic does not exist?
     @PostConstruct
-    public void setupProcessingResultProducer() {
+    public void setupProducers() {
         Properties properties = new Properties();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerConfiguration.getKafkaBootstrapUrls());
 
@@ -37,12 +39,16 @@ public class MessageProducerConfiguration {
 
         processingFailureProducer = new KafkaMessageProducer<>(brokerConfiguration.getProcessingFailureTopicName(), properties,
                 new StringSerializer(), new ObjectSerializer<>());
+
+        simpleExecutionRequestProducer = new KafkaMessageProducer<>(brokerConfiguration.getSimpleExecutionRequestTopicName(), properties,
+                new StringSerializer(), new ObjectSerializer<>());
     }
 
     @PreDestroy
     public void closeProducers() {
         processingResultProducer.close();
         processingFailureProducer.close();
+        simpleExecutionRequestProducer.close();
     }
 
     public MessageProducer<ProcessingResultMessage> getProcessingResultProducer() {
@@ -51,5 +57,9 @@ public class MessageProducerConfiguration {
 
     public MessageProducer<ProcessingFailureMessage> getProcessingFailureProducer() {
         return processingFailureProducer;
+    }
+
+    public MessageProducer<SimpleExecutionRequestMessage> getSimpleExecutionRequestProducer() {
+        return simpleExecutionRequestProducer;
     }
 }

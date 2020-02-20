@@ -3,16 +3,15 @@ package pl.petergood.dcr.e2e.compilationworker;
 import org.assertj.core.api.Assertions;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import pl.petergood.dcr.e2e.E2EApplication;
-import pl.petergood.dcr.e2e.E2EConfig;
 import pl.petergood.dcr.messaging.MessageConsumer;
 import pl.petergood.dcr.messaging.MessageProducer;
-import pl.petergood.dcr.messaging.schema.ProcessingFailureMessage;
-import pl.petergood.dcr.messaging.schema.ProcessingRequestMessage;
-import pl.petergood.dcr.messaging.schema.ProcessingResultMessage;
+import pl.petergood.dcr.messaging.schema.*;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -32,6 +31,14 @@ public class CompilationWorkerE2ETest {
 
     @Autowired
     private MessageConsumer<ProcessingFailureMessage> processingFailureMessageConsumer;
+
+    @Autowired
+    private MessageConsumer<SimpleExecutionRequestMessage> simpleExecutionRequestMessageConsumer;
+
+    @Autowired
+    private MessageConsumer<SimpleExecutionResultMessage> simpleExecutionResultMessageConsumer;
+
+    private Logger LOG = LoggerFactory.getLogger(CompilationWorkerE2ETest.class);
 
     @Test
     public void verifyCodeIsCompiled() {
@@ -87,6 +94,46 @@ public class CompilationWorkerE2ETest {
         Awaitility.await().atMost(Duration.ofSeconds(30)).until(() -> resultMessages.size() == 1);
         List<ProcessingFailureMessage> messages = new ArrayList<>(resultMessages);
         Assertions.assertThat(messages.get(0).getError()).contains("error: 'asdf' was not declared in this scope");
+
+        t.interrupt();
+    }
+
+    @Test
+    public void verifySimpleExecutionRequestIsCreated() {
+        // given
+        String source = "#include <iostream>\n" +
+                "\n" +
+                "using namespace std;\n" +
+                "\n" +
+                "int main() {\n" +
+                "\treturn 0;\n" +
+                "}";
+        ProcessingRequestMessage processingRequest = new ProcessingRequestMessage("CPP", source);
+        processingRequest.setForwardingType(ForwardingType.SIMPLE);
+        processingRequest.setStdin("hello world!");
+
+        Collection<SimpleExecutionRequestMessage> resultMessages = new LinkedBlockingDeque<>();
+        simpleExecutionRequestMessageConsumer.setOnMessageReceived(resultMessages::addAll);
+        Thread t = new Thread((Runnable) simpleExecutionRequestMessageConsumer);
+        t.start();
+
+        /*
+         * Temporary workaround:
+         * Ideal fix would be to have seperate e2e tests with only compilationworker
+         */
+        simpleExecutionResultMessageConsumer.setOnMessageReceived((messages) -> LOG.info("Ignore {} messages", messages.size()));
+        Thread t2 = new Thread((Runnable) simpleExecutionResultMessageConsumer);
+        t2.start();
+
+        // when
+        processingRequestMessageProducer.publish(processingRequest);
+
+        // then
+        Awaitility.await().atMost(Duration.ofSeconds(30)).until(() -> resultMessages.size() == 1);
+        SimpleExecutionRequestMessage requestMessage = resultMessages.iterator().next();
+        Assertions.assertThat(requestMessage.getLanguageId()).isEqualTo("CPP");
+        Assertions.assertThat(requestMessage.getProcessedBytes().length).isGreaterThan(100);
+        Assertions.assertThat(requestMessage.getStdin()).isEqualTo("hello world!");
 
         t.interrupt();
     }

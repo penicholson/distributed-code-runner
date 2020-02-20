@@ -3,6 +3,8 @@ package pl.petergood.dcr.compilationworker.consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.petergood.dcr.compilationworker.configuration.JailConfiguration;
+import pl.petergood.dcr.compilationworker.forwarder.ForwardingStrategy;
+import pl.petergood.dcr.compilationworker.forwarder.ForwardingStrategyFactory;
 import pl.petergood.dcr.compilationworker.job.CompilationJob;
 import pl.petergood.dcr.compilationworker.producer.MessageProducerConfiguration;
 import pl.petergood.dcr.file.FileInteractor;
@@ -28,20 +30,21 @@ public class ProcessingRequestEventHandler implements MessageReceivedEventHandle
     private TerminalInteractor terminalInteractor;
     private FileInteractor fileInteractor;
 
-    private MessageProducer<ProcessingResultMessage> processingResultMessageProducer;
     private MessageProducer<ProcessingFailureMessage> processingFailureMessageProducer;
+    private ForwardingStrategyFactory forwardingStrategyFactory;
 
     private Logger LOG = LoggerFactory.getLogger(ProcessingRequestEventHandler.class);
 
     public ProcessingRequestEventHandler(JailConfiguration jailConfiguration,
                                          TerminalInteractor terminalInteractor,
                                          FileInteractor fileInteractor,
-                                         MessageProducerConfiguration messageProducerConfiguration) {
+                                         MessageProducerConfiguration messageProducerConfiguration,
+                                         ForwardingStrategyFactory forwardingStrategyFactory) {
         this.jailConfiguration = jailConfiguration;
         this.terminalInteractor = terminalInteractor;
         this.fileInteractor = fileInteractor;
-        this.processingResultMessageProducer = messageProducerConfiguration.getProcessingResultProducer();
         this.processingFailureMessageProducer = messageProducerConfiguration.getProcessingFailureProducer();
+        this.forwardingStrategyFactory = forwardingStrategyFactory;
     }
 
     @Override
@@ -56,17 +59,19 @@ public class ProcessingRequestEventHandler implements MessageReceivedEventHandle
                 terminalInteractor, NsJailDirectoryMode.READ_WRITE);
 
         try {
+            ForwardingStrategy forwardingStrategy = forwardingStrategyFactory.getForwardingStrategy(processingRequest);
             LanguageId languageId = LanguageId.fromId(processingRequest.getLanguageId());
 
             JailedFile jailedSource = jail.touchFile("source." + languageId.getExtension(), processingRequest.getSource());
             ProgramSource programSource = new FileProgramSource(jailedSource, languageId);
 
             CompilationJob compilationJob = new CompilationJob(programSource, jail, fileInteractor,
-                    processingResultMessageProducer, processingFailureMessageProducer);
+                    forwardingStrategy, processingFailureMessageProducer);
             // TODO: Run on separate thread?
             compilationJob.run();
         } catch (Exception ex) {
-            LOG.error(ex.getMessage());
+            LOG.error(ex.toString());
+            ex.printStackTrace();
         } finally {
             // TODO: should we have an acceptance test for this?
             jail.destroy();

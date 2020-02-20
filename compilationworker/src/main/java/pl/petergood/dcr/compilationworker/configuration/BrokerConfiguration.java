@@ -21,6 +21,9 @@ public class BrokerConfiguration {
     @Value("${dcr.compilationworker.jail.configuration.kafka.processing.failure.topic.name}")
     private String processingFailureTopicName;
 
+    @Value("${dcr.compilationworker.jail.configuration.kafka.simple.execution.topic.name}")
+    private String simpleExecutionRequestTopicName;
+
     public String getKafkaBootstrapUrls() {
         return kafkaBootstrapUrls;
     }
@@ -39,5 +42,9 @@ public class BrokerConfiguration {
 
     public String getProcessingFailureTopicName() {
         return processingFailureTopicName;
+    }
+
+    public String getSimpleExecutionRequestTopicName() {
+        return simpleExecutionRequestTopicName;
     }
 }

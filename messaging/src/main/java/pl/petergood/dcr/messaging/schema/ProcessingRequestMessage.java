@@ -9,6 +9,12 @@ public class ProcessingRequestMessage {
     @JsonProperty("source")
     private String source;
 
+    @JsonProperty(value = "forwardingType", defaultValue = "NONE")
+    private ForwardingType forwardingType;
+
+    @JsonProperty(value = "stdin", defaultValue = "")
+    private String stdin;
+
     public ProcessingRequestMessage() {
     }
 
@@ -31,5 +37,21 @@ public class ProcessingRequestMessage {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public ForwardingType getForwardingType() {
+        return forwardingType;
+    }
+
+    public void setForwardingType(ForwardingType forwardingType) {
+        this.forwardingType = forwardingType;
+    }
+
+    public String getStdin() {
+        return stdin;
+    }
+
+    public void setStdin(String stdin) {
+        this.stdin = stdin;
     }
 }
