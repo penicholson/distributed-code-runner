@@ -1,2 +1,2 @@
 #!/bin/bash
-mvn -f /dcr clean install -am -pl dcracceptancetests
+mvn -f /dcr clean install -pl !dcre2e

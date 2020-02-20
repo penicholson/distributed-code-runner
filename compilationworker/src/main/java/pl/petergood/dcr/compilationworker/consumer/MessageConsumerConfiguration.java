@@ -2,12 +2,10 @@ package pl.petergood.dcr.compilationworker.consumer;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import pl.petergood.dcr.compilationworker.config.BrokerConfiguration;
-import pl.petergood.dcr.compilationworker.config.JailConfiguration;
-import pl.petergood.dcr.compilationworker.consumer.ProcessingRequestEventHandler;
+import pl.petergood.dcr.compilationworker.configuration.BrokerConfiguration;
+import pl.petergood.dcr.compilationworker.configuration.JailConfiguration;
 import pl.petergood.dcr.compilationworker.producer.MessageProducerConfiguration;
 import pl.petergood.dcr.file.FileInteractor;
 import pl.petergood.dcr.messaging.KafkaMessageConsumer;

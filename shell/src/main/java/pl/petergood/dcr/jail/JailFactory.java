@@ -7,11 +7,11 @@ import java.util.UUID;
 
 public class JailFactory {
 
-    public static Jail createJail(File rootPath, String configPath, TerminalInteractor terminalInteractor) {
+    public static Jail createJail(File rootPath, String configPath, TerminalInteractor terminalInteractor, NsJailDirectoryMode directoryMode) {
         UUID jailId = UUID.randomUUID();
         NsJailConfig jailConfig = new NsJailConfig.Builder()
                 .setConfig(configPath)
-                .setJailDirectoryName("jail", NsJailDirectoryMode.READ_WRITE)
+                .setJailDirectoryName("jail", directoryMode)
                 .setHostJailPath(new File(rootPath + "/" + jailId.toString()))
                 .build();
 

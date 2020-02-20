@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/openjdk:11-jdk
+      - image: petergood/nsjail:latest
 
     working_directory: ~/repo
 
@@ -23,4 +23,5 @@ jobs:
             - ~/.m2
           key: circleci-demo-java-spring-{{ checksum "pom.xml" }}
 
-      - run: mvn clean install -pl !dcracceptancetests -pl !dcre2e
+      - run: cp dcracceptancetests/test-nsjail.cfg .
+      - run: mvn clean install -pl !dcre2e

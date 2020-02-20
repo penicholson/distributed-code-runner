@@ -9,11 +9,16 @@
         <module name="dcrlanguage" />
         <module name="dcrsimplerunnerworker" />
         <module name="shell" />
+        <module name="dcrlanguageacceptancetests" />
+        <module name="dcrshellacceptancetests" />
+        <module name="dcrcompilationworkeracceptancetests" />
         <module name="messaging" />
         <module name="compilationworker" />
         <module name="dcre2e" />
-        <module name="dcracceptancetests" />
+        <module name="dcrrunnerworkercoreacceptancetests" />
         <module name="runnerworkercore" />
+        <module name="dcracceptancetestshelpers" />
+        <module name="dcrsimplerunnerworkeracceptancetests" />
       </profile>
     </annotationProcessing>
   </component>

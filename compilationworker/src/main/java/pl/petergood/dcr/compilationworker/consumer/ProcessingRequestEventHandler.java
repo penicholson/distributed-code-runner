@@ -2,13 +2,14 @@ package pl.petergood.dcr.compilationworker.consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pl.petergood.dcr.compilationworker.config.JailConfiguration;
+import pl.petergood.dcr.compilationworker.configuration.JailConfiguration;
 import pl.petergood.dcr.compilationworker.job.CompilationJob;
 import pl.petergood.dcr.compilationworker.producer.MessageProducerConfiguration;
 import pl.petergood.dcr.file.FileInteractor;
 import pl.petergood.dcr.jail.Jail;
 import pl.petergood.dcr.jail.JailFactory;
 import pl.petergood.dcr.jail.JailedFile;
+import pl.petergood.dcr.jail.NsJailDirectoryMode;
 import pl.petergood.dcr.language.LanguageId;
 import pl.petergood.dcr.language.source.FileProgramSource;
 import pl.petergood.dcr.language.source.ProgramSource;
@@ -51,7 +52,8 @@ public class ProcessingRequestEventHandler implements MessageReceivedEventHandle
     private void handleProcessingRequest(ProcessingRequestMessage processingRequest) {
         LOG.info("Handling {} request", processingRequest.getLanguageId());
 
-        Jail jail = JailFactory.createJail(jailConfiguration.getJailRootPath(), jailConfiguration.getJailConfigurationPath(), terminalInteractor);
+        Jail jail = JailFactory.createJail(jailConfiguration.getJailRootPath(), jailConfiguration.getJailConfigurationPath(),
+                terminalInteractor, NsJailDirectoryMode.READ_WRITE);
 
         try {
             LanguageId languageId = LanguageId.fromId(processingRequest.getLanguageId());

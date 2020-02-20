@@ -2,10 +2,8 @@ package pl.petergood.dcr.compilationworker.producer;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
-import pl.petergood.dcr.compilationworker.config.BrokerConfiguration;
+import pl.petergood.dcr.compilationworker.configuration.BrokerConfiguration;
 import pl.petergood.dcr.messaging.KafkaMessageProducer;
 import pl.petergood.dcr.messaging.MessageProducer;
 import pl.petergood.dcr.messaging.schema.ProcessingFailureMessage;
