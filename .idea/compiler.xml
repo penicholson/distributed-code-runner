@@ -6,19 +6,22 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="dcrlanguage" />
-        <module name="dcrsimplerunnerworker" />
-        <module name="shell" />
-        <module name="dcrlanguageacceptancetests" />
-        <module name="dcrshellacceptancetests" />
-        <module name="dcrcompilationworkeracceptancetests" />
-        <module name="messaging" />
-        <module name="compilationworker" />
-        <module name="dcre2e" />
-        <module name="dcrrunnerworkercoreacceptancetests" />
-        <module name="runnerworkercore" />
-        <module name="dcracceptancetestshelpers" />
         <module name="dcrsimplerunnerworkeracceptancetests" />
+        <module name="fulle2e" />
+        <module name="dcrrunnerworkercoreacceptancetests" />
+        <module name="shell" />
+        <module name="dcrlanguage" />
+        <module name="dcrshellacceptancetests" />
+        <module name="messaging" />
+        <module name="dcrsimplerunnerworkere2e" />
+        <module name="dcrlanguageacceptancetests" />
+        <module name="e2ehelpers" />
+        <module name="dcrcompilationworkere2e" />
+        <module name="dcracceptancetestshelpers" />
+        <module name="dcrsimplerunnerworker" />
+        <module name="compilationworker" />
+        <module name="runnerworkercore" />
+        <module name="dcrcompilationworkeracceptancetests" />
       </profile>
     </annotationProcessing>
   </component>
@@ -26,9 +29,13 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="compilationworker" options="-parameters" />
       <module name="dcracceptancetests" options="" />
+      <module name="dcrcompilationworkere2e" options="-parameters" />
       <module name="dcre2e" options="-parameters" />
       <module name="dcrrunnerworker" options="-parameters" />
       <module name="dcrsimplerunnerworker" options="-parameters" />
+      <module name="dcrsimplerunnerworkere2e" options="-parameters" />
+      <module name="e2ehelpers" options="-parameters" />
+      <module name="fulle2e" options="-parameters" />
       <module name="shell" options="" />
     </option>
   </component>

@@ -5,6 +5,10 @@
     <file url="file://$PROJECT_DIR$/compilationworker" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/dcracceptancetests" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/dcre2e" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dcre2e/dcrcompilationworkere2e" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dcre2e/dcrsimplerunnerworkere2e" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dcre2e/e2ehelpers" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dcre2e/fulle2e" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/dcrrunnerworker" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/dcrrunnerworker/dcrsimplerunnerworker" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/shell" charset="UTF-8" />

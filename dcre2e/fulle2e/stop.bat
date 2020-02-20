@@ -1,0 +1,1 @@
+docker-compose -f dcre2e/fulle2e/docker-compose.yml down
