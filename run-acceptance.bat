@@ -1,2 +1,2 @@
-docker build -t dcr-acceptance-tests -f dcracceptancetests/Dockerfile .
-docker run -v /home/docker/.m2:/root/.m2 -it --privileged=true dcr-acceptance-tests
+::docker build -t dcracceptancetests -f dcracceptancetests/Dockerfile .
+docker run -v /home/docker/.m2:/root/.m2 -v /c/Users/peter/github/petergood/distributed-code-runner:/dcr -it --privileged=true dcracceptancetests %1

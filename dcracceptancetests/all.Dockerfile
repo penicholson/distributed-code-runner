@@ -4,7 +4,7 @@ RUN apt-get -y update && apt-get install -y \
     maven \
     && rm -rf /var/lib/apt/lists/*
 
-COPY dcracceptancetests/run.sh /
-RUN chmod +x /run.sh
+COPY dcracceptancetests/runall.sh /
+RUN chmod +x /runall.sh
 
-ENTRYPOINT ["/bin/bash", "/run.sh"]
+ENTRYPOINT ["/bin/bash", "/runall.sh"]
