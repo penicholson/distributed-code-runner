@@ -16,7 +16,7 @@ import pl.petergood.dcr.messaging.schema.SimpleExecutionRequestMessage;
 import pl.petergood.dcr.messaging.schema.SimpleExecutionResultMessage;
 
 import java.time.Duration;
-import java.util.Collection;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 
 @SpringBootTest
@@ -70,4 +70,52 @@ public class CompilationAndExecutionE2ETest {
         t.interrupt();
     }
 
+    @Test
+    public void verifyMultipleSimpleRequestsAreProcessed() throws Exception {
+        // given
+        String source = "#include <iostream>\n" +
+                "#include <string>\n" +
+                "\n" +
+                "using namespace std;\n" +
+                "\n" +
+                "int main() {\n" +
+                "\tstring s;\n" +
+                "\tcin >> s;\n" +
+                "\tcout << s << endl;\n" +
+                "\treturn 0;\n" +
+                "}";
+        List<ProcessingRequestMessage> processingRequests = new ArrayList<>();
+        Set<String> expectedResponses = new HashSet<>();
+        for (int i = 0; i < 20; i++) {
+            ProcessingRequestMessage processingRequestMessage = new ProcessingRequestMessage("CPP", source);
+            processingRequestMessage.setForwardingType(ForwardingType.SIMPLE);
+            String uuid = UUID.randomUUID().toString();
+            processingRequestMessage.setStdin(uuid);
+            expectedResponses.add(uuid + "\n");
+            processingRequests.add(processingRequestMessage);
+        }
+
+        Collection<SimpleExecutionResultMessage> executionResultMessages = new LinkedBlockingDeque<>();
+        simpleExecutionResultConsumer.setOnMessageReceived((messages) -> {
+            LOG.info("Got {} messages", messages.size());
+            executionResultMessages.addAll(messages);
+        });
+        Thread t = new Thread((Runnable) simpleExecutionResultConsumer);
+        t.start();
+
+        // when
+        for (ProcessingRequestMessage message : processingRequests) {
+            processingRequestProducer.publish(message);
+            Thread.sleep(200);
+        }
+
+        // then
+        Awaitility.await().atMost(Duration.ofSeconds(30)).until(() -> executionResultMessages.size() == 20);
+        Set<String> results = new HashSet<>();
+        for (SimpleExecutionResultMessage message : executionResultMessages) {
+            results.add(message.getStdout());
+        }
+
+        Assertions.assertThat(results).isEqualTo(expectedResponses);
+    }
 }
