@@ -35,7 +35,7 @@ public class SimpleExecutionRequestHandler implements MessageReceivedEventHandle
     }
 
     @Override
-    public void handleMessageBatch(List<SimpleExecutionRequestMessage> messages) {
+    public void setMessagesToProcess(List<SimpleExecutionRequestMessage> messages) {
         messages.forEach(this::handleMessage);
     }
 

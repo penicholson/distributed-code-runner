@@ -47,7 +47,7 @@ public class KafkaMessageConsumerTest {
                 new StringDeserializer(), new StringDeserializer());
         Collection<String> messages = new LinkedBlockingDeque<>();
 
-        messageConsumer.setOnMessageReceived(messages::addAll);
+        messageConsumer.setOnMessageReceived(MessageReceivedEventHandlerFactory.getMessageReceivedEventHandler(messages::addAll));
 
         // when
         Thread t = new Thread((Runnable) messageConsumer);
@@ -72,7 +72,7 @@ public class KafkaMessageConsumerTest {
                 new StringDeserializer(), new StringDeserializer());
 
         AtomicInteger atomicInteger = new AtomicInteger();
-        messageConsumer.setOnMessageReceived((messages) -> atomicInteger.incrementAndGet());
+        messageConsumer.setOnMessageReceived(MessageReceivedEventHandlerFactory.getMessageReceivedEventHandler((messages) -> atomicInteger.incrementAndGet()));
         Thread t = new Thread((Runnable) messageConsumer);
         t.start();
 

@@ -93,7 +93,7 @@ public class ProcessingRequestEventHandlerAcceptanceTest {
                 fileInteractor, messageProducerConfiguration, forwardingStrategyFactory);
 
         // when
-        eventHandler.handleMessageBatch(requests);
+        eventHandler.setMessagesToProcess(requests);
 
         // then
         Awaitility.await().atMost(Duration.ofSeconds(10)).until(() -> receivedMessages.size() == 1);
@@ -129,7 +129,7 @@ public class ProcessingRequestEventHandlerAcceptanceTest {
                 fileInteractor, messageProducerConfiguration, forwardingStrategyFactory);
 
         // when
-        eventHandler.handleMessageBatch(requests);
+        eventHandler.setMessagesToProcess(requests);
 
         // then
         Awaitility.await().atMost(Duration.ofSeconds(10)).until(() -> receivedMessages.size() == 1);
@@ -165,7 +165,7 @@ public class ProcessingRequestEventHandlerAcceptanceTest {
                 fileInteractor, messageProducerConfiguration, forwardingStrategyFactory);
 
         // when
-        eventHandler.handleMessageBatch(Collections.singletonList(processingRequestMessage));
+        eventHandler.setMessagesToProcess(Collections.singletonList(processingRequestMessage));
 
         // then
         Awaitility.await().atMost(Duration.ofSeconds(10)).until(() -> receivedMessages.size() == 1);

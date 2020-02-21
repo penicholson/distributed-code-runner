@@ -17,14 +17,17 @@ import pl.petergood.dcr.language.source.FileProgramSource;
 import pl.petergood.dcr.language.source.ProgramSource;
 import pl.petergood.dcr.messaging.MessageProducer;
 import pl.petergood.dcr.messaging.MessageReceivedEventHandler;
+import pl.petergood.dcr.messaging.PostProcessingHook;
 import pl.petergood.dcr.messaging.schema.ProcessingFailureMessage;
 import pl.petergood.dcr.messaging.schema.ProcessingRequestMessage;
-import pl.petergood.dcr.messaging.schema.ProcessingResultMessage;
 import pl.petergood.dcr.shell.TerminalInteractor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProcessingRequestEventHandler implements MessageReceivedEventHandler<ProcessingRequestMessage> {
+
+    private ProcessingRequestMessage processingRequest;
 
     private JailConfiguration jailConfiguration;
     private TerminalInteractor terminalInteractor;
@@ -48,11 +51,16 @@ public class ProcessingRequestEventHandler implements MessageReceivedEventHandle
     }
 
     @Override
-    public void handleMessageBatch(List<ProcessingRequestMessage> message) {
-        message.forEach(this::handleProcessingRequest);
+    public void setMessagesToProcess(List<ProcessingRequestMessage> messages) {
+        if (messages.size() != 1) {
+            throw new IllegalArgumentException("Cannot process more than one request.");
+        }
+
+        this.processingRequest = messages.get(0);
     }
 
-    private void handleProcessingRequest(ProcessingRequestMessage processingRequest) {
+    @Override
+    public void run() {
         LOG.info("Handling {} request", processingRequest.getLanguageId());
 
         Jail jail = JailFactory.createJail(jailConfiguration.getJailRootPath(), jailConfiguration.getJailConfigurationPath(),
