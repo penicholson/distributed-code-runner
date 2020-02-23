@@ -6,37 +6,37 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="dcrsimplerunnerworkeracceptancetests" />
-        <module name="fulle2e" />
-        <module name="dcrrunnerworkercoreacceptancetests" />
+        <module name="compilation-worker" />
+        <module name="language" />
+        <module name="simple-runner-worker-e2e" />
         <module name="shell" />
-        <module name="dcrlanguage" />
-        <module name="dcrshellacceptancetests" />
+        <module name="language-acceptance-tests" />
+        <module name="full-e2e" />
+        <module name="shell-acceptance-tests" />
         <module name="messaging" />
-        <module name="dcrsimplerunnerworkere2e" />
-        <module name="dcrlanguageacceptancetests" />
-        <module name="e2ehelpers" />
-        <module name="dcrcompilationworkere2e" />
-        <module name="dcracceptancetestshelpers" />
-        <module name="dcrsimplerunnerworker" />
-        <module name="compilationworker" />
-        <module name="runnerworkercore" />
-        <module name="dcrcompilationworkeracceptancetests" />
+        <module name="simple-runner-worker-acceptance-tests" />
+        <module name="acceptance-tests-helpers" />
+        <module name="compilation-worker-acceptance-tests" />
+        <module name="compilation-worker-e2e" />
+        <module name="simple-runner-worker" />
+        <module name="runner-worker-core" />
+        <module name="e2e-helpers" />
+        <module name="runner-worker-core-acceptance-tests" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="compilationworker" options="-parameters" />
-      <module name="dcracceptancetests" options="" />
-      <module name="dcrcompilationworkere2e" options="-parameters" />
-      <module name="dcre2e" options="-parameters" />
-      <module name="dcrrunnerworker" options="-parameters" />
-      <module name="dcrsimplerunnerworker" options="-parameters" />
-      <module name="dcrsimplerunnerworkere2e" options="-parameters" />
-      <module name="e2ehelpers" options="-parameters" />
-      <module name="fulle2e" options="-parameters" />
+      <module name="acceptance-tests" options="" />
+      <module name="compilation-worker" options="-parameters" />
+      <module name="compilation-worker-e2e" options="-parameters" />
+      <module name="e2e" options="-parameters" />
+      <module name="e2e-helpers" options="-parameters" />
+      <module name="full-e2e" options="-parameters" />
+      <module name="runner-worker" options="-parameters" />
       <module name="shell" options="" />
+      <module name="simple-runner-worker" options="-parameters" />
+      <module name="simple-runner-worker-e2e" options="-parameters" />
     </option>
   </component>
 </project>

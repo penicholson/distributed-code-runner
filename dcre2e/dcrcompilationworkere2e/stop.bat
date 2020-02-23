@@ -1,1 +1,0 @@
-docker-compose -f dcre2e/dcrcompilationworkere2e/docker-compose.yml down

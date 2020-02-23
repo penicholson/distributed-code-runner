@@ -42,7 +42,7 @@ public class NsJail implements Jail {
     private void setupJailDirectory() {
         // TODO: think about this...
         if (jailConfig.getHostJailPath().getAbsolutePath().equals("/")) {
-            throw new IllegalStateException("U CRAZY?");
+            throw new IllegalStateException();
         }
 
         destroy();

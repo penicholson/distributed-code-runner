@@ -2,15 +2,15 @@
 <project version="4">
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/compilationworker" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/dcracceptancetests" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/dcre2e" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/dcre2e/dcrcompilationworkere2e" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/dcre2e/dcrsimplerunnerworkere2e" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/dcre2e/e2ehelpers" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/dcre2e/fulle2e" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/dcrrunnerworker" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/dcrrunnerworker/dcrsimplerunnerworker" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/acceptance-tests" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/compilation-worker" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/e2e" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/e2e/compilation-worker-e2e" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/e2e/e2e-helpers" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/e2e/full-e2e" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/e2e/simple-runner-worker-e2e" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/runner-worker" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/runner-worker/simple-runner-worker" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/shell" charset="UTF-8" />
   </component>
 </project>

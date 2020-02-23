@@ -23,4 +23,4 @@ jobs:
             - ~/.m2
           key: circleci-demo-java-spring-{{ checksum "pom.xml" }}
 
-      - run: mvn clean install -pl !dcre2e,!pl.petergood:dcracceptancetestshelpers,!pl.petergood:dcrcompilationworkeracceptancetests,!pl.petergood:dcrlanguageacceptancetests,!pl.petergood:dcrrunnerworkercoreacceptancetests,!pl.petergood:dcrshellacceptancetests,!pl.petergood:dcrsimplerunnerworkeracceptancetests,!pl.petergood:dcrcompilationworkere2e,!pl.petergood:dcrsimplerunnerworkere2e,!pl.petergood:fulle2e
+      - run: mvn clean install -pl !e2e,!pl.petergood.dcr:acceptance-tests-helpers,!pl.petergood.dcr:compilation-worker-acceptance-tests,!pl.petergood.dcr:language-acceptance-tests,!pl.petergood.dcr:runner-worker-core-acceptance-tests,!pl.petergood.dcr:shell-acceptance-tests,!pl.petergood.dcr:simple-runner-worker-acceptance-tests,!pl.petergood.dcr:compilation-worker-e2e,!pl.petergood.dcr:simple-runner-worker-e2e,!pl.petergood.dcr:full-e2e
