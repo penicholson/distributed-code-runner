@@ -8,8 +8,8 @@
         <outputRelativeToContentRoot value="true" />
         <module name="compilation-worker" />
         <module name="language" />
-        <module name="simple-runner-worker-e2e" />
         <module name="shell" />
+        <module name="configuration-service" />
         <module name="language-acceptance-tests" />
         <module name="full-e2e" />
         <module name="shell-acceptance-tests" />
@@ -19,6 +19,7 @@
         <module name="compilation-worker-acceptance-tests" />
         <module name="compilation-worker-e2e" />
         <module name="simple-runner-worker" />
+        <module name="simple-runner-worker-e2e" />
         <module name="runner-worker-core" />
         <module name="e2e-helpers" />
         <module name="runner-worker-core-acceptance-tests" />
@@ -30,6 +31,7 @@
       <module name="acceptance-tests" options="" />
       <module name="compilation-worker" options="-parameters" />
       <module name="compilation-worker-e2e" options="-parameters" />
+      <module name="configuration-service" options="-parameters" />
       <module name="e2e" options="-parameters" />
       <module name="e2e-helpers" options="-parameters" />
       <module name="full-e2e" options="-parameters" />
