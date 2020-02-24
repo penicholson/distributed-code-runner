@@ -85,6 +85,13 @@ public class NsJailConfig {
             return this;
         }
 
+        public Builder setProcessLimitConfig(NsJailProcessLimitConfig nsJailProcessLimitConfig) {
+            for (Map.Entry<String, String> config : nsJailProcessLimitConfig.getConfig().entrySet()) {
+                addFlag(config.getKey(), config.getValue());
+            }
+            return this;
+        }
+
         private void addFlag(String flag, String value) {
             flags.putIfAbsent(flag, new ArrayList<>());
             flags.get(flag).add(value);

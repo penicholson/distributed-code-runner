@@ -224,4 +224,60 @@ public class NsJailAcceptanceTest {
         Assertions.assertThat(Files.asCharSource(jailedFile, Charset.defaultCharset()).read()).isEqualTo("this is a test!");
     }
 
+    @Test
+    public void verifyCpuLimitIsHonoured() throws Exception {
+        // given
+        File spinner = new File("/dcr/acceptance-tests/testbinaries/spinner");
+
+        NsJailProcessLimitConfig processLimitConfig = new NsJailProcessLimitConfig.Builder()
+                .cpuTimeLimit(1)
+                .build();
+
+        NsJailConfig jailConfig = new NsJailConfig.Builder()
+                .setConfig("/test-nsjail.cfg")
+                .setHostJailPath(new File("/nsjail"))
+                .setJailDirectoryName("jail", NsJailDirectoryMode.READ_WRITE)
+                .setProcessLimitConfig(processLimitConfig)
+                .build();
+
+        TerminalInteractor terminalInteractor = new ShellTerminalInteractor();
+        Jail jail = new NsJail(jailConfig, terminalInteractor);
+        JailedFile jailedSpinner = jail.jailFile(spinner);
+        ExecutableFile executable = jail.makeExecutable(jailedSpinner);
+
+        // when
+        Throwable thrownException = Assertions.catchThrowable(() -> jail.executeAndReturnOutputContent(new String[] { executable.getAbsolutePath() }));
+
+        // then
+        Assertions.assertThat(thrownException).isInstanceOf(NsJailTerminatedException.class);
+    }
+
+    @Test
+    public void verifyMemoryLimitIsHonoured() throws Exception {
+        // given
+        File chrome = new File("/dcr/acceptance-tests/testbinaries/chrome");
+
+        NsJailProcessLimitConfig processLimitConfig = new NsJailProcessLimitConfig.Builder()
+                .memoryLimit(10000)
+                .build();
+
+        NsJailConfig jailConfig = new NsJailConfig.Builder()
+                .setConfig("/test-nsjail.cfg")
+                .setHostJailPath(new File("/nsjail"))
+                .setJailDirectoryName("jail", NsJailDirectoryMode.READ_WRITE)
+                .setProcessLimitConfig(processLimitConfig)
+                .build();
+
+        TerminalInteractor terminalInteractor = new ShellTerminalInteractor();
+        Jail jail = new NsJail(jailConfig, terminalInteractor);
+        JailedFile jailedChrome = jail.jailFile(chrome);
+        ExecutableFile executable = jail.makeExecutable(jailedChrome);
+
+        // when
+        Throwable thrownException = Assertions.catchThrowable(() -> jail.executeAndReturnOutputContent(new String[] { executable.getAbsolutePath() }));
+
+        // then
+        Assertions.assertThat(thrownException).isInstanceOf(NsJailTerminatedException.class);
+    }
+
 }

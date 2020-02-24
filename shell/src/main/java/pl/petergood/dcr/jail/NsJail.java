@@ -23,7 +23,7 @@ public class NsJail implements Jail {
     private TerminalInteractor terminalInteractor;
     private FileInteractor fileInteractor;
 
-    private NsJailErrorDetector logErrorDetector = new NsJailErrorDetector();
+    private NsJailLogProcessor logProcessor = new NsJailLogProcessor();
 
     public NsJail(NsJailConfig jailConfig, TerminalInteractor terminalInteractor) {
         this(jailConfig, terminalInteractor, new FileSystemFileInteractor());
@@ -106,8 +106,12 @@ public class NsJail implements Jail {
     private void validateJailLogs(File jailLogFile) {
         try {
             String jailLogs = fileInteractor.readFileAsString(jailLogFile);
-            if (logErrorDetector.isErrorPresent(jailLogs)) {
+            if (logProcessor.isErrorPresent(jailLogs)) {
                 throw new NsJailException(jailLogs);
+            }
+
+            if (logProcessor.didTerminate(jailLogs)) {
+                throw new NsJailTerminatedException();
             }
         } catch (IOException e) {
             LOG.warn("Could not read log file {}", jailLogFile.getAbsolutePath());
