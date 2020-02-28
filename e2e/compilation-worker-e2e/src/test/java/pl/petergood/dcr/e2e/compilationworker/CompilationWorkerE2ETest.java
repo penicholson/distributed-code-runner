@@ -111,6 +111,7 @@ public class CompilationWorkerE2ETest {
         ProcessingRequestMessage processingRequest = new ProcessingRequestMessage("CPP", source);
         processingRequest.setForwardingType(ForwardingType.SIMPLE);
         processingRequest.setStdin("hello world!");
+        processingRequest.setExecutionProfileId(2);
 
         Collection<SimpleExecutionRequestMessage> resultMessages = new LinkedBlockingDeque<>();
         simpleExecutionRequestMessageConsumer.setOnMessageReceived(resultMessages::addAll);
@@ -126,6 +127,7 @@ public class CompilationWorkerE2ETest {
         Assertions.assertThat(requestMessage.getLanguageId()).isEqualTo("CPP");
         Assertions.assertThat(requestMessage.getProcessedBytes().length).isGreaterThan(100);
         Assertions.assertThat(requestMessage.getStdin()).isEqualTo("hello world!");
+        Assertions.assertThat(requestMessage.getExecutionProfileId()).isEqualTo(2);
 
         t.interrupt();
     }

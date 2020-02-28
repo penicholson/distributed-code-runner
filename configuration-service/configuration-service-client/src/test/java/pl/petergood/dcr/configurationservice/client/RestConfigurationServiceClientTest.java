@@ -1,6 +1,5 @@
 package pl.petergood.dcr.configurationservice.client;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.assertj.core.api.Assertions;
 import org.junit.Rule;
@@ -30,7 +29,7 @@ public class RestConfigurationServiceClientTest {
         Assertions.assertThat(executionProfile.getMemoryLimitBytes()).isEqualTo(123);
     }
 
-    @Test(expected = ExecutionProfileNotFound.class)
+    @Test(expected = ExecutionProfileNotFoundException.class)
     public void verifyExceptionIsThrownWhenExecutionProfileNotFound() {
         // given
         stubFor(get("/executionprofile/1").willReturn(aResponse()

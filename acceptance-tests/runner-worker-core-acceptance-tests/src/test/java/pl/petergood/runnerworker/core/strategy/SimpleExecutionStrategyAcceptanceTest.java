@@ -7,7 +7,7 @@ import pl.petergood.dcr.acceptancetests.AcceptanceTestsJailFactory;
 import pl.petergood.dcr.file.FileInteractor;
 import pl.petergood.dcr.file.FileSystemFileInteractor;
 import pl.petergood.dcr.jail.Jail;
-import pl.petergood.dcr.jail.NsJailDirectoryMode;
+import pl.petergood.dcr.jail.JailDirectoryMode;
 import pl.petergood.dcr.messaging.schema.SimpleExecutionRequestMessage;
 import pl.petergood.dcr.messaging.schema.SimpleExecutionResultMessage;
 import pl.petergood.dcr.runnerworker.core.strategy.SimpleExecutionStrategy;
@@ -20,8 +20,8 @@ public class SimpleExecutionStrategyAcceptanceTest {
     public void verifyExecutableIsExecuted() throws Exception {
         // given
         byte[] bytes = Files.asByteSource(new File("/dcr/acceptance-tests/testbinaries/sum")).read();
-        SimpleExecutionRequestMessage requestMessage = new SimpleExecutionRequestMessage("CPP", bytes, "2584 4181"); // 6765
-        Jail jail = AcceptanceTestsJailFactory.getJail(NsJailDirectoryMode.READ_ONLY);
+        SimpleExecutionRequestMessage requestMessage = new SimpleExecutionRequestMessage("CPP", bytes, "2584 4181", 0); // 6765
+        Jail jail = AcceptanceTestsJailFactory.getJail(JailDirectoryMode.READ_ONLY);
         FileInteractor fileInteractor = new FileSystemFileInteractor();
         SimpleExecutionStrategy strategy = new SimpleExecutionStrategy(jail, fileInteractor);
 

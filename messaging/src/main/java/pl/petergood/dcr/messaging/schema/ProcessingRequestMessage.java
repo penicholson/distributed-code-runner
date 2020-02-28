@@ -15,6 +15,9 @@ public class ProcessingRequestMessage {
     @JsonProperty(value = "stdin", defaultValue = "")
     private String stdin;
 
+    @JsonProperty(value = "executionProfileId")
+    private int executionProfileId;
+
     public ProcessingRequestMessage() {
     }
 
@@ -53,5 +56,13 @@ public class ProcessingRequestMessage {
 
     public void setStdin(String stdin) {
         this.stdin = stdin;
+    }
+
+    public int getExecutionProfileId() {
+        return executionProfileId;
+    }
+
+    public void setExecutionProfileId(int executionProfileId) {
+        this.executionProfileId = executionProfileId;
     }
 }

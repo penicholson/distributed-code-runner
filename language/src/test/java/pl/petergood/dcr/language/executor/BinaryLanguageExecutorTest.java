@@ -22,7 +22,7 @@ public class BinaryLanguageExecutorTest {
     NsJailConfig jailConfig = new NsJailConfig.Builder()
             .setConfig("/usr/share/config.cfg")
             .setHostJailPath(new File("/nsjail"))
-            .setJailDirectoryName("jail", NsJailDirectoryMode.READ_WRITE)
+            .setJailDirectoryName("jail", JailDirectoryMode.READ_WRITE)
             .build();
 
     @Test

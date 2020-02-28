@@ -4,6 +4,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import pl.petergood.dcr.configurationservice.client.ConfigurationServiceClient;
 import pl.petergood.dcr.file.FileInteractor;
 import pl.petergood.dcr.messaging.KafkaMessageConsumer;
 import pl.petergood.dcr.messaging.MessageConsumer;
@@ -29,6 +30,7 @@ public class MessageConsumerConfiguration {
     private TerminalInteractor terminalInteractor;
     private FileInteractor fileInteractor;
     private JailConfiguration jailConfiguration;
+    private ConfigurationServiceClient configurationServiceClient;
     private MessageProducerConfiguration messageProducerConfiguration;
 
     public MessageConsumerConfiguration(BrokerConfiguration brokerConfiguration,
@@ -36,12 +38,14 @@ public class MessageConsumerConfiguration {
                                         TerminalInteractor terminalInteractor,
                                         FileInteractor fileInteractor,
                                         JailConfiguration jailConfiguration,
+                                        ConfigurationServiceClient configurationServiceClient,
                                         MessageProducerConfiguration messageProducerConfiguration) {
         this.brokerConfiguration = brokerConfiguration;
         this.taskExecutor = taskExecutor;
         this.terminalInteractor = terminalInteractor;
         this.fileInteractor = fileInteractor;
         this.jailConfiguration = jailConfiguration;
+        this.configurationServiceClient = configurationServiceClient;
         this.messageProducerConfiguration = messageProducerConfiguration;
     }
 
@@ -55,7 +59,7 @@ public class MessageConsumerConfiguration {
                 Duration.ofSeconds(1), new StringDeserializer(), new ObjectDeserializer<>(SimpleExecutionRequestMessage.class));
 
         executionRequestConsumer.setOnMessageReceived(new SimpleExecutionRequestHandler(terminalInteractor, fileInteractor,
-                jailConfiguration, messageProducerConfiguration));
+                jailConfiguration, configurationServiceClient, messageProducerConfiguration));
         taskExecutor.execute((Runnable) executionRequestConsumer);
     }
 

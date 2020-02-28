@@ -18,7 +18,7 @@ public class SimpleForwardingStrategy implements ForwardingStrategy {
     @Override
     public void forwardMessage(byte[] processedBytes) {
         SimpleExecutionRequestMessage simpleExecutionRequest = new SimpleExecutionRequestMessage(processingRequestMessage.getLanguageId(), processedBytes,
-                processingRequestMessage.getStdin());
+                processingRequestMessage.getStdin(), processingRequestMessage.getExecutionProfileId());
         simpleExecutionRequestProducer.publish(simpleExecutionRequest);
     }
 }

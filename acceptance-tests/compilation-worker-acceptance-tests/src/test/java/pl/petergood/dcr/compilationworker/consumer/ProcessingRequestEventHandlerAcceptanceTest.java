@@ -161,6 +161,7 @@ public class ProcessingRequestEventHandlerAcceptanceTest {
         ProcessingRequestMessage processingRequestMessage = new ProcessingRequestMessage("CPP", source);
         processingRequestMessage.setForwardingType(ForwardingType.SIMPLE);
         processingRequestMessage.setStdin("hello world!");
+        processingRequestMessage.setExecutionProfileId(3);
         ProcessingRequestEventHandler eventHandler = new ProcessingRequestEventHandler(jailConfiguration, terminalInteractor,
                 fileInteractor, messageProducerConfiguration, forwardingStrategyFactory);
 
@@ -173,6 +174,7 @@ public class ProcessingRequestEventHandlerAcceptanceTest {
         Assertions.assertThat(executionRequest.getLanguageId()).isEqualTo("CPP");
         Assertions.assertThat(executionRequest.getProcessedBytes().length).isEqualTo(16944);
         Assertions.assertThat(executionRequest.getStdin()).isEqualTo("hello world!");
+        Assertions.assertThat(executionRequest.getExecutionProfileId()).isEqualTo(3);
     }
 
 }

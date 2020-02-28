@@ -22,7 +22,7 @@ public class NsJailConfigTest {
                 .setConfig("/usr/share/config.cfg")
                 .setLogFile("/usr/share/logs.log")
                 .setHostJailPath(new File("/usr/nsjail"))
-                .setJailDirectoryName("jail", NsJailDirectoryMode.READ_WRITE)
+                .setJailDirectoryName("jail", JailDirectoryMode.READ_WRITE)
                 .build();
 
         // when
@@ -40,7 +40,7 @@ public class NsJailConfigTest {
                 .readOnlyMount("/usr")
                 .readOnlyMount("/bin")
                 .setHostJailPath(new File("/usr/nsjail"))
-                .setJailDirectoryName("jail", NsJailDirectoryMode.READ_ONLY)
+                .setJailDirectoryName("jail", JailDirectoryMode.READ_ONLY)
                 .build();
 
         // when
@@ -58,7 +58,7 @@ public class NsJailConfigTest {
                 .readOnlyMount("/usr")
                 .readOnlyMount("/bin")
                 .setHostJailPath(new File("/usr/nsjail"))
-                .setJailDirectoryName("jail", NsJailDirectoryMode.READ_ONLY)
+                .setJailDirectoryName("jail", JailDirectoryMode.READ_ONLY)
                 .setLogFile("/usr/nsjail/jail.log")
                 .build();
 

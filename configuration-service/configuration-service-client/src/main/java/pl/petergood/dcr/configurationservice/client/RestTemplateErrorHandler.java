@@ -14,6 +14,6 @@ public class RestTemplateErrorHandler implements ResponseErrorHandler {
 
     @Override
     public void handleError(ClientHttpResponse response) throws IOException {
-        throw new ExecutionProfileNotFound();
+        throw new ExecutionProfileNotFoundException();
     }
 }
