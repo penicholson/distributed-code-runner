@@ -1,0 +1,18 @@
+version: '2'
+services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: hello
+      POSTGRES_DB: configurationservice
+  configurationservice:
+    image: dcrconfigurationservice:latest
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres/configurationservice
+      SPRING_DATASOURCE_USERNAME: test
+      SPRING_DATASOURCE_PASSWORD: hello
+      SPRING_JPA_DATABASE-PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+      SPRING_JPA_HIBERNATE_DDL-AUTO: create
+    ports:
+      - "8080:8080"

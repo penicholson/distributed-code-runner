@@ -8,6 +8,7 @@
     <file url="file://$PROJECT_DIR$/configuration-service/configuration-service-backend" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/e2e" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/e2e/compilation-worker-e2e" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/e2e/configuration-service-e2e" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/e2e/e2e-helpers" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/e2e/full-e2e" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/e2e/simple-runner-worker-e2e" charset="UTF-8" />
