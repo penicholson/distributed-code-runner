@@ -5,14 +5,16 @@ public class SimpleExecutionRequestMessage {
     private String languageId;
     private byte[] processedBytes;
     private String stdin;
+    private int executionProfileId;
 
     public SimpleExecutionRequestMessage() {
     }
 
-    public SimpleExecutionRequestMessage(String languageId, byte[] processedBytes, String stdin) {
+    public SimpleExecutionRequestMessage(String languageId, byte[] processedBytes, String stdin, int executionProfileId) {
         this.languageId = languageId;
         this.processedBytes = processedBytes;
         this.stdin = stdin;
+        this.executionProfileId = executionProfileId;
     }
 
     public String getLanguageId() {
@@ -33,5 +35,17 @@ public class SimpleExecutionRequestMessage {
 
     public String getStdin() {
         return stdin;
+    }
+
+    public void setStdin(String stdin) {
+        this.stdin = stdin;
+    }
+
+    public int getExecutionProfileId() {
+        return executionProfileId;
+    }
+
+    public void setExecutionProfileId(int executionProfileId) {
+        this.executionProfileId = executionProfileId;
     }
 }

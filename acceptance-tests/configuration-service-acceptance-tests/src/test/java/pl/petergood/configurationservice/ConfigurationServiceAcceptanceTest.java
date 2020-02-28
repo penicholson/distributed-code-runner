@@ -27,7 +27,7 @@ public class ConfigurationServiceAcceptanceTest {
         // given
         ExecutionProfile executionProfile = new ExecutionProfile();
         executionProfile.setMemoryLimitBytes(100);
-        executionProfile.setCpuTimeLimitSeconds(-2);
+        executionProfile.setCpuTimeLimitSeconds(2);
 
         // when
         ResponseEntity<ExecutionProfile> response = restTemplate.postForEntity("http://localhost:" + port + "/executionprofile",

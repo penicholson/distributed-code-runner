@@ -11,7 +11,6 @@ import pl.petergood.dcr.shell.FileExecutionResult;
 import pl.petergood.dcr.shell.TerminalInteractor;
 
 import java.io.File;
-import java.io.IOException;
 
 import static org.mockito.Mockito.*;
 
@@ -27,7 +26,7 @@ public class NsJailTest {
     NsJailConfig jailConfig = new NsJailConfig.Builder()
             .setConfig("/usr/share/config.cfg")
             .setHostJailPath(new File(hostJailPath))
-            .setJailDirectoryName("jail", NsJailDirectoryMode.READ_WRITE)
+            .setJailDirectoryName("jail", JailDirectoryMode.READ_WRITE)
             .build();
 
     String absoluteJailPath = isWindows ? "C:\\usr\\nsjail\\jail" : "/usr/nsjail/jail";

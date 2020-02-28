@@ -11,7 +11,7 @@ import pl.petergood.dcr.file.FileInteractor;
 import pl.petergood.dcr.jail.Jail;
 import pl.petergood.dcr.jail.JailFactory;
 import pl.petergood.dcr.jail.JailedFile;
-import pl.petergood.dcr.jail.NsJailDirectoryMode;
+import pl.petergood.dcr.jail.JailDirectoryMode;
 import pl.petergood.dcr.language.LanguageId;
 import pl.petergood.dcr.language.source.FileProgramSource;
 import pl.petergood.dcr.language.source.ProgramSource;
@@ -19,7 +19,6 @@ import pl.petergood.dcr.messaging.MessageProducer;
 import pl.petergood.dcr.messaging.MessageReceivedEventHandler;
 import pl.petergood.dcr.messaging.schema.ProcessingFailureMessage;
 import pl.petergood.dcr.messaging.schema.ProcessingRequestMessage;
-import pl.petergood.dcr.messaging.schema.ProcessingResultMessage;
 import pl.petergood.dcr.shell.TerminalInteractor;
 
 import java.util.List;
@@ -56,7 +55,7 @@ public class ProcessingRequestEventHandler implements MessageReceivedEventHandle
         LOG.info("Handling {} request", processingRequest.getLanguageId());
 
         Jail jail = JailFactory.createJail(jailConfiguration.getJailRootPath(), jailConfiguration.getJailConfigurationPath(),
-                terminalInteractor, NsJailDirectoryMode.READ_WRITE);
+                terminalInteractor, JailDirectoryMode.READ_WRITE);
 
         try {
             ForwardingStrategy forwardingStrategy = forwardingStrategyFactory.getForwardingStrategy(processingRequest);

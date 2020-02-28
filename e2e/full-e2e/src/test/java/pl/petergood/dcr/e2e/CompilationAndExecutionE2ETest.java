@@ -1,13 +1,18 @@
 package pl.petergood.dcr.e2e;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.assertj.core.api.Assertions;
 import org.awaitility.Awaitility;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.*;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.web.client.RestTemplate;
 import pl.petergood.dcr.messaging.MessageConsumer;
 import pl.petergood.dcr.messaging.MessageProducer;
 import pl.petergood.dcr.messaging.schema.ForwardingType;
@@ -15,6 +20,7 @@ import pl.petergood.dcr.messaging.schema.ProcessingRequestMessage;
 import pl.petergood.dcr.messaging.schema.SimpleExecutionRequestMessage;
 import pl.petergood.dcr.messaging.schema.SimpleExecutionResultMessage;
 
+import java.net.URI;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -30,6 +36,22 @@ public class CompilationAndExecutionE2ETest {
     private MessageConsumer<SimpleExecutionResultMessage> simpleExecutionResultConsumer;
 
     private Logger LOG = LoggerFactory.getLogger(CompilationAndExecutionE2ETest.class);
+
+    @Value("${dcr.e2e.configurationservice.url}")
+    private String configurationServiceUrl;
+
+    private int executionProfileId;
+
+    @BeforeEach
+    public void createExecutionProfile() throws Exception {
+        RestTemplate restTemplate = new RestTemplate();
+        String requestBody = "{\"cpuTimeLimitSeconds\":1,\"memoryLimitBytes\":1000000}";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        RequestEntity<String> requestEntity = new RequestEntity<>(requestBody, headers, HttpMethod.POST, new URI(configurationServiceUrl + "/executionprofile"));
+        ResponseEntity<JsonNode> response = restTemplate.exchange(requestEntity, JsonNode.class);
+        executionProfileId = response.getBody().get("id").asInt();
+    }
 
     @Test
     public void verifySourceIsCompiledAndExecuted() {
@@ -48,6 +70,7 @@ public class CompilationAndExecutionE2ETest {
         ProcessingRequestMessage processingRequestMessage = new ProcessingRequestMessage("CPP", source);
         processingRequestMessage.setForwardingType(ForwardingType.SIMPLE);
         processingRequestMessage.setStdin("10946 17711"); // 28657
+        processingRequestMessage.setExecutionProfileId(executionProfileId);
 
         Collection<SimpleExecutionResultMessage> executionResultMessages = new LinkedBlockingDeque<>();
         simpleExecutionResultConsumer.setOnMessageReceived(executionResultMessages::addAll);
@@ -88,6 +111,7 @@ public class CompilationAndExecutionE2ETest {
             processingRequestMessage.setForwardingType(ForwardingType.SIMPLE);
             String uuid = UUID.randomUUID().toString();
             processingRequestMessage.setStdin(uuid);
+            processingRequestMessage.setExecutionProfileId(executionProfileId);
             expectedResponses.add(uuid + "\n");
             processingRequests.add(processingRequestMessage);
         }

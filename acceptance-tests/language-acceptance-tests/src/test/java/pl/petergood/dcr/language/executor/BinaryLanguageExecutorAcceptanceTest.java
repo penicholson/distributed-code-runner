@@ -7,7 +7,7 @@ import pl.petergood.dcr.acceptancetests.AcceptanceTestsJailFactory;
 import pl.petergood.dcr.jail.ExecutableFile;
 import pl.petergood.dcr.jail.Jail;
 import pl.petergood.dcr.jail.JailedFile;
-import pl.petergood.dcr.jail.NsJailDirectoryMode;
+import pl.petergood.dcr.jail.JailDirectoryMode;
 import pl.petergood.dcr.shell.FileExecutionResult;
 
 import java.io.File;
@@ -18,7 +18,7 @@ public class BinaryLanguageExecutorAcceptanceTest {
     @Test
     public void verifyBinaryIsExecutedWithNoInput() throws Exception {
         // given
-        Jail jail = AcceptanceTestsJailFactory.getJail(NsJailDirectoryMode.READ_ONLY);
+        Jail jail = AcceptanceTestsJailFactory.getJail(JailDirectoryMode.READ_ONLY);
         LanguageExecutor languageExecutor = new BinaryLanguageExecutor(jail);
         JailedFile file = jail.jailFile(new File("/dcr/acceptance-tests/testbinaries/helloworld"));
         ExecutableFile executable = jail.makeExecutable(file);
@@ -34,7 +34,7 @@ public class BinaryLanguageExecutorAcceptanceTest {
     @Test
     public void verifyBinaryIsExecutedWithInput() throws Exception {
         // given
-        Jail jail = AcceptanceTestsJailFactory.getJail(NsJailDirectoryMode.READ_ONLY);
+        Jail jail = AcceptanceTestsJailFactory.getJail(JailDirectoryMode.READ_ONLY);
         LanguageExecutor languageExecutor = new BinaryLanguageExecutor(jail);
         JailedFile file = jail.jailFile(new File("/dcr/acceptance-tests/testbinaries/sum"));
         ExecutableFile executable = jail.makeExecutable(file);

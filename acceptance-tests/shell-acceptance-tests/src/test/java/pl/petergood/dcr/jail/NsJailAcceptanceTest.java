@@ -16,7 +16,7 @@ public class NsJailAcceptanceTest {
     private static NsJailConfig jailConfig = new NsJailConfig.Builder()
             .setConfig("/test-nsjail.cfg")
             .setHostJailPath(new File("/nsjail"))
-            .setJailDirectoryName("jail", NsJailDirectoryMode.READ_WRITE)
+            .setJailDirectoryName("jail", JailDirectoryMode.READ_WRITE)
             .build();
 
     @Test
@@ -115,7 +115,7 @@ public class NsJailAcceptanceTest {
         NsJailConfig jailConfig = new NsJailConfig.Builder()
                 .setConfig("/test-nsjail.cfg")
                 .setHostJailPath(new File("/nsjail"))
-                .setJailDirectoryName("jail", NsJailDirectoryMode.READ_ONLY)
+                .setJailDirectoryName("jail", JailDirectoryMode.READ_ONLY)
                 .build();
         TerminalInteractor terminalInteractor = new ShellTerminalInteractor();
         Jail jail = new NsJail(jailConfig, terminalInteractor);
@@ -236,7 +236,7 @@ public class NsJailAcceptanceTest {
         NsJailConfig jailConfig = new NsJailConfig.Builder()
                 .setConfig("/test-nsjail.cfg")
                 .setHostJailPath(new File("/nsjail"))
-                .setJailDirectoryName("jail", NsJailDirectoryMode.READ_WRITE)
+                .setJailDirectoryName("jail", JailDirectoryMode.READ_WRITE)
                 .setProcessLimitConfig(processLimitConfig)
                 .build();
 
@@ -264,7 +264,7 @@ public class NsJailAcceptanceTest {
         NsJailConfig jailConfig = new NsJailConfig.Builder()
                 .setConfig("/test-nsjail.cfg")
                 .setHostJailPath(new File("/nsjail"))
-                .setJailDirectoryName("jail", NsJailDirectoryMode.READ_WRITE)
+                .setJailDirectoryName("jail", JailDirectoryMode.READ_WRITE)
                 .setProcessLimitConfig(processLimitConfig)
                 .build();
 
@@ -278,6 +278,34 @@ public class NsJailAcceptanceTest {
 
         // then
         Assertions.assertThat(thrownException).isInstanceOf(NsJailTerminatedException.class);
+    }
+
+    @Test
+    public void verifyWellBehavedProgramExecutes() throws Exception {
+        // given
+        File sumFile = new File("/dcr/acceptance-tests/testbinaries/sum");
+        NsJailProcessLimitConfig processLimitConfig = new NsJailProcessLimitConfig.Builder()
+                .cpuTimeLimit(5)
+                .memoryLimit(1000000)
+                .build();
+
+        NsJailConfig jailConfig = new NsJailConfig.Builder()
+                .setConfig("/test-nsjail.cfg")
+                .setHostJailPath(new File("/nsjail"))
+                .setJailDirectoryName("jail", JailDirectoryMode.READ_WRITE)
+                .setProcessLimitConfig(processLimitConfig)
+                .build();
+
+        Jail jail = new NsJail(jailConfig, new ShellTerminalInteractor());
+        JailedFile jailedSum = jail.jailFile(sumFile);
+        ExecutableFile executable = jail.makeExecutable(jailedSum);
+
+        // when
+        FileExecutionResult result = jail.executeWithInputContentAndReturnOutputFiles(new String[] { executable.getAbsolutePath() }, "3 2");
+
+        // then
+        String output = Files.asCharSource(result.getStdOutFile(), Charset.defaultCharset()).read();
+        Assertions.assertThat(output).isEqualTo("5");
     }
 
 }

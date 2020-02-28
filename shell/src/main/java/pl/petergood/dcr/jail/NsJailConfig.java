@@ -42,7 +42,7 @@ public class NsJailConfig {
         private Map<String, List<String>> flags = new HashMap<>();
         private File hostJailPath;
         private String jailDirectory;
-        private NsJailDirectoryMode jailDirectoryMode;
+        private JailDirectoryMode jailDirectoryMode;
 
         public Builder setConfig(String path) {
             addFlag("config", path);
@@ -79,7 +79,7 @@ public class NsJailConfig {
             return this;
         }
 
-        public Builder setJailDirectoryName(String directory, NsJailDirectoryMode jailDirectoryMode) {
+        public Builder setJailDirectoryName(String directory, JailDirectoryMode jailDirectoryMode) {
             this.jailDirectory = directory;
             this.jailDirectoryMode = jailDirectoryMode;
             return this;
@@ -106,7 +106,7 @@ public class NsJailConfig {
 
             File absoluteJailPath = new File(hostJailPath, jailDirectory);
 
-            if (jailDirectoryMode == NsJailDirectoryMode.READ_WRITE) {
+            if (jailDirectoryMode == JailDirectoryMode.READ_WRITE) {
                 readWriteMount(absoluteJailPath.getAbsolutePath());
             } else {
                 readOnlyMount(absoluteJailPath.getAbsolutePath());

@@ -1,5 +1,5 @@
 package pl.petergood.dcr.jail;
 
-public enum NsJailDirectoryMode {
+public enum JailDirectoryMode {
     READ_ONLY, READ_WRITE
 }
