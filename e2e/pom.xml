@@ -12,6 +12,7 @@
         <module>simple-runner-worker-e2e</module>
         <module>full-e2e</module>
         <module>e2e-helpers</module>
+        <module>configuration-service-e2e</module>
     </modules>
 
     <parent>

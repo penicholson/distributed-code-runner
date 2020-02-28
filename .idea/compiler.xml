@@ -6,9 +6,10 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="compilation-worker" />
+        <module name="configuration-service-client" />
+        <module name="configuration-service-backend" />
         <module name="language" />
-        <module name="simple-runner-worker-e2e" />
+        <module name="compilation-worker" />
         <module name="shell" />
         <module name="language-acceptance-tests" />
         <module name="full-e2e" />
@@ -16,9 +17,12 @@
         <module name="messaging" />
         <module name="simple-runner-worker-acceptance-tests" />
         <module name="acceptance-tests-helpers" />
+        <module name="configuration-service-acceptance-tests" />
+        <module name="configuration-service-e2e" />
         <module name="compilation-worker-acceptance-tests" />
         <module name="compilation-worker-e2e" />
         <module name="simple-runner-worker" />
+        <module name="simple-runner-worker-e2e" />
         <module name="runner-worker-core" />
         <module name="e2e-helpers" />
         <module name="runner-worker-core-acceptance-tests" />
@@ -30,6 +34,9 @@
       <module name="acceptance-tests" options="" />
       <module name="compilation-worker" options="-parameters" />
       <module name="compilation-worker-e2e" options="-parameters" />
+      <module name="configuration-service" options="-parameters" />
+      <module name="configuration-service-backend" options="-parameters" />
+      <module name="configuration-service-e2e" options="-parameters" />
       <module name="e2e" options="-parameters" />
       <module name="e2e-helpers" options="-parameters" />
       <module name="full-e2e" options="-parameters" />

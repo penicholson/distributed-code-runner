@@ -14,6 +14,7 @@
         <module>shell-acceptance-tests</module>
         <module>acceptance-tests-helpers</module>
         <module>runner-worker-core-acceptance-tests</module>
+        <module>configuration-service-acceptance-tests</module>
     </modules>
     <artifactId>acceptance-tests</artifactId>
 
