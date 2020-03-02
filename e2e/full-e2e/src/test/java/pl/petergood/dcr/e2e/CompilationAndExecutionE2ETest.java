@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.*;
 import org.springframework.test.context.ContextConfiguration;
+import pl.petergood.dcr.messaging.Message;
 import org.springframework.web.client.RestTemplate;
 import pl.petergood.dcr.messaging.MessageConsumer;
 import pl.petergood.dcr.messaging.MessageProducer;
@@ -24,16 +25,17 @@ import java.net.URI;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.stream.Collectors;
 
 @SpringBootTest
 @ContextConfiguration(classes = FullE2EApplication.class)
 public class CompilationAndExecutionE2ETest {
 
     @Autowired
-    private MessageProducer<ProcessingRequestMessage> processingRequestProducer;
+    private MessageProducer<String, ProcessingRequestMessage> processingRequestProducer;
 
     @Autowired
-    private MessageConsumer<SimpleExecutionResultMessage> simpleExecutionResultConsumer;
+    private MessageConsumer<String, SimpleExecutionResultMessage> simpleExecutionResultConsumer;
 
     private Logger LOG = LoggerFactory.getLogger(CompilationAndExecutionE2ETest.class);
 
@@ -73,12 +75,12 @@ public class CompilationAndExecutionE2ETest {
         processingRequestMessage.setExecutionProfileId(executionProfileId);
 
         Collection<SimpleExecutionResultMessage> executionResultMessages = new LinkedBlockingDeque<>();
-        simpleExecutionResultConsumer.setOnMessageReceived(executionResultMessages::addAll);
+        simpleExecutionResultConsumer.setOnMessageReceived((messages) -> executionResultMessages.addAll(messages.stream().map(Message::getMessage).collect(Collectors.toList())));
         Thread t = new Thread((Runnable) simpleExecutionResultConsumer);
         t.start();
 
         // when
-        processingRequestProducer.publish(processingRequestMessage);
+        processingRequestProducer.publish("verifySourceIsCompiledAndExecuted", processingRequestMessage);
 
         // then
         Awaitility.await().atMost(Duration.ofSeconds(30)).until(() -> executionResultMessages.size() == 1);
@@ -119,14 +121,15 @@ public class CompilationAndExecutionE2ETest {
         Collection<SimpleExecutionResultMessage> executionResultMessages = new LinkedBlockingDeque<>();
         simpleExecutionResultConsumer.setOnMessageReceived((messages) -> {
             LOG.info("Got {} messages", messages.size());
-            executionResultMessages.addAll(messages);
+            executionResultMessages.addAll(messages.stream().map(Message::getMessage).collect(Collectors.toList()));
         });
         Thread t = new Thread((Runnable) simpleExecutionResultConsumer);
         t.start();
 
         // when
+        int corrId = 0;
         for (ProcessingRequestMessage message : processingRequests) {
-            processingRequestProducer.publish(message);
+            processingRequestProducer.publish("verifyMultipleSimpleRequestsAreProcessed" + (corrId++), message);
             Thread.sleep(200);
         }
 

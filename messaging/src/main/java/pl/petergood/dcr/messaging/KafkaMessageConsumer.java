@@ -12,12 +12,11 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-public class KafkaMessageConsumer<T> implements MessageConsumer<T>, Runnable {
+public class KafkaMessageConsumer<K, V> implements MessageConsumer<K, V>, Runnable {
 
-    // TODO: should we use String key?
-    private Consumer<String, T> consumer;
+    private Consumer<K, V> consumer;
     private Duration pollingTimeout;
-    private MessageReceivedEventHandler<T> eventHandler;
+    private MessageReceivedEventHandler<K, V> eventHandler;
 
     public KafkaMessageConsumer(Properties properties, String topicName) {
         this(properties, topicName, Duration.ofMillis(500));
@@ -30,8 +29,8 @@ public class KafkaMessageConsumer<T> implements MessageConsumer<T>, Runnable {
     public KafkaMessageConsumer(Properties properties,
                                 String topicName,
                                 Duration pollingTimeout,
-                                Deserializer<String> keyDeserializer,
-                                Deserializer<T> valueDeserializer) {
+                                Deserializer<K> keyDeserializer,
+                                Deserializer<V> valueDeserializer) {
 
         this.pollingTimeout = pollingTimeout;
 
@@ -45,20 +44,19 @@ public class KafkaMessageConsumer<T> implements MessageConsumer<T>, Runnable {
     }
 
     @Override
-    public void setOnMessageReceived(MessageReceivedEventHandler<T> eventHandler) {
+    public void setOnMessageReceived(MessageReceivedEventHandler<K, V> eventHandler) {
         this.eventHandler = eventHandler;
     }
 
     @Override
     public void run() {
         while (true) {
-            ConsumerRecords<String, T> polledRecords = consumer.poll(pollingTimeout);
+            ConsumerRecords<K, V> polledRecords = consumer.poll(pollingTimeout);
             if (!polledRecords.isEmpty()) {
                 eventHandler.handleMessageBatch(StreamSupport.stream(polledRecords.spliterator(), false)
-                        .map(ConsumerRecord::value)
+                        .map((consumerRecord) -> new Message<>(consumerRecord.key(), consumerRecord.value()))
                         .collect(Collectors.toList()));
 
-                // TODO: think about this...
                 consumer.commitSync();
             }
         }

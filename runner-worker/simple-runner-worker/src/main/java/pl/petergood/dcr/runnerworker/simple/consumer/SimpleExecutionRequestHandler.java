@@ -1,15 +1,11 @@
 package pl.petergood.dcr.runnerworker.simple.consumer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import pl.petergood.dcr.configurationservice.client.ConfigurationServiceClient;
-import pl.petergood.dcr.configurationservice.client.ExecutionProfile;
-import pl.petergood.dcr.configurationservice.client.ExecutionProfileNotFoundException;
 import pl.petergood.dcr.file.FileInteractor;
 import pl.petergood.dcr.jail.Jail;
 import pl.petergood.dcr.jail.JailFactory;
 import pl.petergood.dcr.jail.JailDirectoryMode;
 import pl.petergood.dcr.jail.NsJailException;
+import pl.petergood.dcr.messaging.Message;
 import pl.petergood.dcr.messaging.MessageProducer;
 import pl.petergood.dcr.messaging.MessageReceivedEventHandler;
 import pl.petergood.dcr.messaging.schema.SimpleExecutionRequestMessage;
@@ -22,11 +18,12 @@ import pl.petergood.dcr.shell.TerminalInteractor;
 import java.io.IOException;
 import java.util.List;
 
-public class SimpleExecutionRequestHandler implements MessageReceivedEventHandler<SimpleExecutionRequestMessage> {
+public class SimpleExecutionRequestHandler implements MessageReceivedEventHandler<String, SimpleExecutionRequestMessage> {
 
     private TerminalInteractor terminalInteractor;
     private FileInteractor fileInteractor;
     private JailConfiguration jailConfiguration;
+    private MessageProducer<String, SimpleExecutionResultMessage> executionResultMessageProducer;
     private ConfigurationServiceClient configurationServiceClient;
     private MessageProducer<SimpleExecutionResultMessage> executionResultMessageProducer;
 
@@ -45,8 +42,8 @@ public class SimpleExecutionRequestHandler implements MessageReceivedEventHandle
     }
 
     @Override
-    public void handleMessageBatch(List<SimpleExecutionRequestMessage> messages) {
-        messages.forEach(this::handleMessage);
+    public void handleMessageBatch(List<Message<String, SimpleExecutionRequestMessage>> messages) {
+        messages.forEach((message) -> handleMessage(message.getKey(), message.getMessage()));
     }
 
     private void handleMessage(SimpleExecutionRequestMessage message) {
@@ -58,7 +55,7 @@ public class SimpleExecutionRequestHandler implements MessageReceivedEventHandle
             SimpleExecutionStrategy executionStrategy = new SimpleExecutionStrategy(jail, fileInteractor);
 
             SimpleExecutionResultMessage resultMessage = executionStrategy.execute(message);
-            executionResultMessageProducer.publish(resultMessage);
+            executionResultMessageProducer.publish(correlationId, resultMessage);
         } catch (NsJailException | IOException ex) {
             LOG.error(ex.getMessage());
             ex.printStackTrace();

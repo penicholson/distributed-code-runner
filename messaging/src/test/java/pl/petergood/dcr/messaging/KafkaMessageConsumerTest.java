@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class KafkaMessageConsumerTest {
 
@@ -43,11 +44,11 @@ public class KafkaMessageConsumerTest {
         properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaRule.getEmbeddedKafka().getBrokersAsString());
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "test-group");
         properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        MessageConsumer<String> messageConsumer = new KafkaMessageConsumer<>(properties, "test-topic", Duration.ofSeconds(1),
+        MessageConsumer<String, String> messageConsumer = new KafkaMessageConsumer<>(properties, "test-topic", Duration.ofSeconds(1),
                 new StringDeserializer(), new StringDeserializer());
-        Collection<String> messages = new LinkedBlockingDeque<>();
+        Collection<String> receivedMessages = new LinkedBlockingDeque<>();
 
-        messageConsumer.setOnMessageReceived(messages::addAll);
+        messageConsumer.setOnMessageReceived((messages) -> receivedMessages.addAll(messages.stream().map(Message::getMessage).collect(Collectors.toList())));
 
         // when
         Thread t = new Thread((Runnable) messageConsumer);
@@ -56,9 +57,9 @@ public class KafkaMessageConsumerTest {
         producer.send(new ProducerRecord<>("test-topic", "hello world!"));
 
         // then
-        Awaitility.await().atMost(Duration.ofSeconds(10)).until(() -> messages.size() == 1);
-        Assertions.assertThat(messages.size()).isEqualTo(1);
-        Assertions.assertThat(messages.contains("hello world!")).isTrue();
+        Awaitility.await().atMost(Duration.ofSeconds(10)).until(() -> receivedMessages.size() == 1);
+        Assertions.assertThat(receivedMessages.size()).isEqualTo(1);
+        Assertions.assertThat(receivedMessages.contains("hello world!")).isTrue();
     }
 
     @Test
@@ -68,7 +69,7 @@ public class KafkaMessageConsumerTest {
         properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaRule.getEmbeddedKafka().getBrokersAsString());
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "test-group");
         properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        MessageConsumer<String> messageConsumer = new KafkaMessageConsumer<>(properties, "test-topic", Duration.ofSeconds(1),
+        MessageConsumer<String, String> messageConsumer = new KafkaMessageConsumer<>(properties, "test-topic", Duration.ofSeconds(1),
                 new StringDeserializer(), new StringDeserializer());
 
         AtomicInteger atomicInteger = new AtomicInteger();

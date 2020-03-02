@@ -14,11 +14,14 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.support.TestPropertySourceUtils;
 import pl.petergood.dcr.acceptancetests.TestConsumerFactory;
 import pl.petergood.dcr.acceptancetests.TestProducerFactory;
+import pl.petergood.dcr.messaging.Message;
 import pl.petergood.dcr.messaging.MessageConsumer;
 import pl.petergood.dcr.messaging.MessageProducer;
 import pl.petergood.dcr.messaging.schema.ProcessingFailureMessage;
 import pl.petergood.dcr.messaging.schema.ProcessingRequestMessage;
 import pl.petergood.dcr.messaging.schema.ProcessingResultMessage;
+import pl.petergood.dcr.messaging.status.StatusEventType;
+import pl.petergood.dcr.messaging.status.StatusMessage;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -26,13 +29,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @SpringBootTest
 @ContextConfiguration(
         classes = CompilationWorkerApplication.class,
         initializers = E2ECompilationWorkerAcceptanceTest.CompilationWorkerContextInitializer.class
 )
-@EmbeddedKafka(partitions = 1, topics = { "processing-request", "processing-result", "processing-failure" }, controlledShutdown = true)
+@EmbeddedKafka(partitions = 1, topics = { "processing-request", "processing-result" }, controlledShutdown = true)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class E2ECompilationWorkerAcceptanceTest {
 
@@ -60,32 +64,36 @@ public class E2ECompilationWorkerAcceptanceTest {
                 "\treturn 0;\n" +
                 "}";
 
-        MessageProducer<ProcessingRequestMessage> processingRequestMessageProducer = TestProducerFactory.createProducer(brokerAddress, "processing-request");
-        MessageConsumer<ProcessingResultMessage> processingResultMessageConsumer = TestConsumerFactory.createConsumer(ProcessingResultMessage.class,
+        MessageProducer<String, ProcessingRequestMessage> processingRequestMessageProducer = TestProducerFactory.createProducer(brokerAddress, "processing-request");
+        MessageConsumer<String, ProcessingResultMessage> processingResultMessageConsumer = TestConsumerFactory.createConsumer(ProcessingResultMessage.class,
                 brokerAddress, "test-group", "processing-result");
-        MessageConsumer<ProcessingFailureMessage> processingFailureMessageConsumer = TestConsumerFactory.createConsumer(ProcessingFailureMessage.class,
-                brokerAddress, "test-group", "processing-failure");
+        MessageConsumer<String, StatusMessage> statusConsumer = TestConsumerFactory.createConsumer(StatusMessage.class,
+                brokerAddress, "test-group", "status");
 
         Collection<ProcessingResultMessage> receivedMessages = new LinkedBlockingDeque<>();
-        processingResultMessageConsumer.setOnMessageReceived(receivedMessages::addAll);
+        processingResultMessageConsumer.setOnMessageReceived((messages) -> receivedMessages.addAll(messages.stream().map(Message::getMessage).collect(Collectors.toList())));
         Thread t = new Thread((Runnable) processingResultMessageConsumer);
         t.start();
 
-        AtomicInteger failureMessageCount = new AtomicInteger();
-        processingFailureMessageConsumer.setOnMessageReceived((messages) -> failureMessageCount.addAndGet(messages.size()));
-        Thread t2 = new Thread((Runnable) processingFailureMessageConsumer);
+        Collection<StatusMessage> receivedStatusMessages = new LinkedBlockingDeque<>();
+        statusConsumer.setOnMessageReceived((messages) -> receivedStatusMessages.addAll(messages.stream().map(Message::getMessage).collect(Collectors.toList())));
+        Thread t2 = new Thread((Runnable) statusConsumer);
         t2.start();
 
         // when
         ProcessingRequestMessage processingRequestMessage = new ProcessingRequestMessage("CPP", source);
-        processingRequestMessageProducer.publish(processingRequestMessage);
+        processingRequestMessageProducer.publish("", processingRequestMessage);
 
         // then
         Awaitility.await().atMost(Duration.ofSeconds(20)).until(() -> receivedMessages.size() == 1);
         List<ProcessingResultMessage> messages = new ArrayList<>(receivedMessages);
         Assertions.assertThat(messages.get(0).getLanguageId()).isEqualTo("CPP");
         Assertions.assertThat(messages.get(0).getProcessedBytes().length).isEqualTo(16944);
-        Assertions.assertThat(failureMessageCount.get()).isEqualTo(0);
+
+        Awaitility.await().atMost(Duration.ofSeconds(20)).until(() -> receivedStatusMessages.size() == 2);
+        List<StatusMessage> statusMessages = new ArrayList<>(receivedStatusMessages);
+        Assertions.assertThat(statusMessages.get(0).getStatusEventType()).isEqualTo(StatusEventType.PROCESSING_STARTED);
+        Assertions.assertThat(statusMessages.get(1).getStatusEventType()).isEqualTo(StatusEventType.PROCESSING_SUCCESS);
     }
 
     @Test
@@ -100,15 +108,15 @@ public class E2ECompilationWorkerAcceptanceTest {
                 "\treturn 0;\n" +
                 "}";
 
-        MessageProducer<ProcessingRequestMessage> processingRequestMessageProducer = TestProducerFactory.createProducer(brokerAddress, "processing-request");
-        MessageConsumer<ProcessingResultMessage> processingResultMessageConsumer = TestConsumerFactory.createConsumer(ProcessingResultMessage.class,
+        MessageProducer<String, ProcessingRequestMessage> processingRequestMessageProducer = TestProducerFactory.createProducer(brokerAddress, "processing-request");
+        MessageConsumer<String, ProcessingResultMessage> processingResultMessageConsumer = TestConsumerFactory.createConsumer(ProcessingResultMessage.class,
                 brokerAddress, "test-group", "processing-result");
-        MessageConsumer<ProcessingFailureMessage> processingFailureMessageConsumer = TestConsumerFactory.createConsumer(ProcessingFailureMessage.class,
-                brokerAddress, "test-group", "processing-failure");
+        MessageConsumer<String, StatusMessage> statusConsumer = TestConsumerFactory.createConsumer(StatusMessage.class,
+                brokerAddress, "test-group", "status");
 
-        Collection<ProcessingFailureMessage> receivedFailureMessages = new LinkedBlockingDeque<>();
-        processingFailureMessageConsumer.setOnMessageReceived(receivedFailureMessages::addAll);
-        Thread t = new Thread((Runnable) processingFailureMessageConsumer);
+        Collection<StatusMessage> receivedStatusMessages = new LinkedBlockingDeque<>();
+        statusConsumer.setOnMessageReceived((messages) -> receivedStatusMessages.addAll(messages.stream().map(Message::getMessage).collect(Collectors.toList())));
+        Thread t = new Thread((Runnable) statusConsumer);
         t.start();
 
         AtomicInteger successMessageCount = new AtomicInteger();
@@ -118,12 +126,12 @@ public class E2ECompilationWorkerAcceptanceTest {
 
         // when
         ProcessingRequestMessage processingRequestMessage = new ProcessingRequestMessage("CPP", source);
-        processingRequestMessageProducer.publish(processingRequestMessage);
+        processingRequestMessageProducer.publish("", processingRequestMessage);
 
         // then
-        Awaitility.await().atMost(Duration.ofSeconds(20)).until(() -> receivedFailureMessages.size() == 1);
-        List<ProcessingFailureMessage> messages = new ArrayList<>(receivedFailureMessages);
-        Assertions.assertThat(messages.get(0).getError()).contains("error: 'asdf' was not declared in this scope");
+        Awaitility.await().atMost(Duration.ofSeconds(20)).until(() -> receivedStatusMessages.size() == 2);
+        List<StatusMessage> messages = new ArrayList<>(receivedStatusMessages);
+        Assertions.assertThat(messages.get(1).getMessage()).contains("error: 'asdf' was not declared in this scope");
         Assertions.assertThat(successMessageCount.get()).isEqualTo(0);
     }
 

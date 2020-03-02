@@ -25,7 +25,7 @@ public class MessageConsumerConfiguration {
 
     private BrokerConfiguration brokerConfiguration;
     private ThreadPoolTaskExecutor taskExecutor;
-    private MessageConsumer<SimpleExecutionRequestMessage> executionRequestConsumer;
+    private MessageConsumer<String, SimpleExecutionRequestMessage> executionRequestConsumer;
 
     private TerminalInteractor terminalInteractor;
     private FileInteractor fileInteractor;

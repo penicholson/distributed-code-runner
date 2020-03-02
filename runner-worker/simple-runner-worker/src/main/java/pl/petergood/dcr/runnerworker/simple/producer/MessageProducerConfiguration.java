@@ -16,7 +16,7 @@ import java.util.Properties;
 public class MessageProducerConfiguration {
 
     private BrokerConfiguration brokerConfiguration;
-    private MessageProducer<SimpleExecutionResultMessage> resultMessageProducer;
+    private MessageProducer<String, SimpleExecutionResultMessage> resultMessageProducer;
 
     public MessageProducerConfiguration(BrokerConfiguration brokerConfiguration) {
         this.brokerConfiguration = brokerConfiguration;
@@ -30,7 +30,7 @@ public class MessageProducerConfiguration {
                 new StringSerializer(), new ObjectSerializer<>());
     }
 
-    public MessageProducer<SimpleExecutionResultMessage> getResultMessageProducer() {
+    public MessageProducer<String, SimpleExecutionResultMessage> getResultMessageProducer() {
         return resultMessageProducer;
     }
 }

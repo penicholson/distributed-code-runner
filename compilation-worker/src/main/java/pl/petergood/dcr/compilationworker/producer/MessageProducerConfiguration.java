@@ -2,6 +2,7 @@ package pl.petergood.dcr.compilationworker.producer;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 import pl.petergood.dcr.compilationworker.configuration.BrokerConfiguration;
 import pl.petergood.dcr.messaging.KafkaMessageProducer;
@@ -10,6 +11,7 @@ import pl.petergood.dcr.messaging.schema.ProcessingFailureMessage;
 import pl.petergood.dcr.messaging.schema.ProcessingResultMessage;
 import pl.petergood.dcr.messaging.schema.SimpleExecutionRequestMessage;
 import pl.petergood.dcr.messaging.serializer.ObjectSerializer;
+import pl.petergood.dcr.messaging.status.StatusMessage;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -20,9 +22,10 @@ public class MessageProducerConfiguration {
 
     private BrokerConfiguration brokerConfiguration;
 
-    private MessageProducer<ProcessingResultMessage> processingResultProducer;
-    private MessageProducer<ProcessingFailureMessage> processingFailureProducer;
-    private MessageProducer<SimpleExecutionRequestMessage> simpleExecutionRequestProducer;
+    private MessageProducer<String, ProcessingResultMessage> processingResultProducer;
+    private MessageProducer<String, SimpleExecutionRequestMessage> simpleExecutionRequestProducer;
+
+    private MessageProducer<String, StatusMessage> statusProducer;
 
     public MessageProducerConfiguration(BrokerConfiguration brokerConfiguration) {
         this.brokerConfiguration = brokerConfiguration;
@@ -37,29 +40,29 @@ public class MessageProducerConfiguration {
         processingResultProducer = new KafkaMessageProducer<>(brokerConfiguration.getProcessingResultTopicName(), properties,
                 new StringSerializer(), new ObjectSerializer<>());
 
-        processingFailureProducer = new KafkaMessageProducer<>(brokerConfiguration.getProcessingFailureTopicName(), properties,
+        simpleExecutionRequestProducer = new KafkaMessageProducer<>(brokerConfiguration.getSimpleExecutionRequestTopicName(), properties,
                 new StringSerializer(), new ObjectSerializer<>());
 
-        simpleExecutionRequestProducer = new KafkaMessageProducer<>(brokerConfiguration.getSimpleExecutionRequestTopicName(), properties,
+        statusProducer = new KafkaMessageProducer<>(brokerConfiguration.getStatusTopicName(), properties,
                 new StringSerializer(), new ObjectSerializer<>());
     }
 
     @PreDestroy
     public void closeProducers() {
         processingResultProducer.close();
-        processingFailureProducer.close();
         simpleExecutionRequestProducer.close();
+        statusProducer.close();
     }
 
-    public MessageProducer<ProcessingResultMessage> getProcessingResultProducer() {
+    public MessageProducer<String, ProcessingResultMessage> getProcessingResultProducer() {
         return processingResultProducer;
     }
 
-    public MessageProducer<ProcessingFailureMessage> getProcessingFailureProducer() {
-        return processingFailureProducer;
+    public MessageProducer<String, SimpleExecutionRequestMessage> getSimpleExecutionRequestProducer() {
+        return simpleExecutionRequestProducer;
     }
 
-    public MessageProducer<SimpleExecutionRequestMessage> getSimpleExecutionRequestProducer() {
-        return simpleExecutionRequestProducer;
+    public MessageProducer<String, StatusMessage> getStatusProducer() {
+        return statusProducer;
     }
 }

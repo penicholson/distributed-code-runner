@@ -10,24 +10,24 @@ import pl.petergood.dcr.messaging.schema.SimpleExecutionRequestMessage;
 @Component
 public class ForwardingStrategyFactory {
 
-    private MessageProducer<ProcessingResultMessage> processingResultProducer;
-    private MessageProducer<SimpleExecutionRequestMessage> simpleExecutionRequestProducer;
+    private MessageProducer<String, ProcessingResultMessage> processingResultProducer;
+    private MessageProducer<String, SimpleExecutionRequestMessage> simpleExecutionRequestProducer;
 
     public ForwardingStrategyFactory(MessageProducerConfiguration producerConfiguration) {
         this.processingResultProducer = producerConfiguration.getProcessingResultProducer();
         this.simpleExecutionRequestProducer = producerConfiguration.getSimpleExecutionRequestProducer();
     }
 
-    public ForwardingStrategy getForwardingStrategy(ProcessingRequestMessage processingRequestMessage) {
+    public ForwardingStrategy getForwardingStrategy(String correlationId, ProcessingRequestMessage processingRequestMessage) {
         if (processingRequestMessage.getForwardingType() == null) {
-            return new ReturnForwardingStrategy(processingResultProducer, processingRequestMessage);
+            return new ReturnForwardingStrategy(correlationId, processingResultProducer, processingRequestMessage);
         }
 
         switch (processingRequestMessage.getForwardingType()) {
             case NONE:
-                return new ReturnForwardingStrategy(processingResultProducer, processingRequestMessage);
+                return new ReturnForwardingStrategy(correlationId, processingResultProducer, processingRequestMessage);
             case SIMPLE:
-                return new SimpleForwardingStrategy(simpleExecutionRequestProducer, processingRequestMessage);
+                return new SimpleForwardingStrategy(correlationId, simpleExecutionRequestProducer, processingRequestMessage);
             default:
                 throw new IllegalArgumentException();
         }

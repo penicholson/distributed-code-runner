@@ -18,6 +18,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.support.TestPropertySourceUtils;
 import pl.petergood.dcr.acceptancetests.TestConsumerFactory;
 import pl.petergood.dcr.acceptancetests.TestProducerFactory;
+import pl.petergood.dcr.messaging.Message;
 import pl.petergood.dcr.messaging.MessageConsumer;
 import pl.petergood.dcr.messaging.MessageProducer;
 import pl.petergood.dcr.messaging.schema.SimpleExecutionRequestMessage;
@@ -29,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.stream.Collectors;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
@@ -78,17 +80,17 @@ public class E2ESimpleRunnerWorkerAcceptanceTest {
         byte[] bytes = Files.asByteSource(binaryFile).read();
         SimpleExecutionRequestMessage requestMessage = new SimpleExecutionRequestMessage("CPP", bytes, "121393 196418", 1); // 317811
 
-        MessageProducer<SimpleExecutionRequestMessage> messageProducer = TestProducerFactory.createProducer(bootstrapUrls, "simple-execution-request");
-        MessageConsumer<SimpleExecutionResultMessage> messageConsumer = TestConsumerFactory.createConsumer(SimpleExecutionResultMessage.class,
+        MessageProducer<String, SimpleExecutionRequestMessage> messageProducer = TestProducerFactory.createProducer(bootstrapUrls, "simple-execution-request");
+        MessageConsumer<String, SimpleExecutionResultMessage> messageConsumer = TestConsumerFactory.createConsumer(SimpleExecutionResultMessage.class,
                 bootstrapUrls, "test-simple-runner-worker", "simple-execution-result");
         Collection<SimpleExecutionResultMessage> receivedMessages = new LinkedBlockingDeque<>();
-        messageConsumer.setOnMessageReceived(receivedMessages::addAll);
+        messageConsumer.setOnMessageReceived((messages) -> receivedMessages.addAll(messages.stream().map(Message::getMessage).collect(Collectors.toList())));
 
         Thread t = new Thread((Runnable) messageConsumer);
         t.start();
 
         // when
-        messageProducer.publish(requestMessage);
+        messageProducer.publish("", requestMessage);
 
         // then
         Awaitility.await().atMost(Duration.ofSeconds(30)).until(() -> receivedMessages.size() == 1);
