@@ -7,9 +7,9 @@ import org.apache.kafka.common.serialization.Serializer;
 
 import java.util.Properties;
 
-public class KafkaMessageProducer<T> implements MessageProducer<String, T> {
+public class KafkaMessageProducer<K, T> implements MessageProducer<K, T> {
 
-    private Producer<String, T> producer;
+    private Producer<K, T> producer;
     private String topicName;
 
     public KafkaMessageProducer(String topicName, Properties properties) {
@@ -19,15 +19,15 @@ public class KafkaMessageProducer<T> implements MessageProducer<String, T> {
 
     public KafkaMessageProducer(String topicName,
                                 Properties properties,
-                                Serializer<String> keySerializer,
+                                Serializer<K> keySerializer,
                                 Serializer<T> valueSerializer) {
         this.topicName = topicName;
         this.producer = new KafkaProducer<>(properties, keySerializer, valueSerializer);
     }
 
     @Override
-    public void publish(String key, T message) {
-        ProducerRecord<String, T> record = new ProducerRecord<>(topicName, key, message);
+    public void publish(K key, T message) {
+        ProducerRecord<K, T> record = new ProducerRecord<>(topicName, key, message);
         producer.send(record);
 
         // TODO: think about this

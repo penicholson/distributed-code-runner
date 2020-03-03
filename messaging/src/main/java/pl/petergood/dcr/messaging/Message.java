@@ -1,5 +1,8 @@
 package pl.petergood.dcr.messaging;
 
+import lombok.EqualsAndHashCode;
+
+@EqualsAndHashCode
 public class Message<K, V> {
     private K key;
     private V message;

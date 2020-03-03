@@ -1,5 +1,8 @@
 package pl.petergood.dcr.messaging.status;
 
+import lombok.EqualsAndHashCode;
+
+@EqualsAndHashCode
 public class StatusMessage {
     private StatusEventType statusEventType;
     private String message;

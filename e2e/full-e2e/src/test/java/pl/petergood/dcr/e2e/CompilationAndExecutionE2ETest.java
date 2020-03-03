@@ -20,6 +20,8 @@ import pl.petergood.dcr.messaging.schema.ForwardingType;
 import pl.petergood.dcr.messaging.schema.ProcessingRequestMessage;
 import pl.petergood.dcr.messaging.schema.SimpleExecutionRequestMessage;
 import pl.petergood.dcr.messaging.schema.SimpleExecutionResultMessage;
+import pl.petergood.dcr.messaging.status.StatusEventType;
+import pl.petergood.dcr.messaging.status.StatusMessage;
 
 import java.net.URI;
 import java.time.Duration;
@@ -36,6 +38,9 @@ public class CompilationAndExecutionE2ETest {
 
     @Autowired
     private MessageConsumer<String, SimpleExecutionResultMessage> simpleExecutionResultConsumer;
+
+    @Autowired
+    private MessageConsumer<String, StatusMessage> statusConsumer;
 
     private Logger LOG = LoggerFactory.getLogger(CompilationAndExecutionE2ETest.class);
 
@@ -79,6 +84,11 @@ public class CompilationAndExecutionE2ETest {
         Thread t = new Thread((Runnable) simpleExecutionResultConsumer);
         t.start();
 
+        Collection<Message<String, StatusMessage>> receivedStatusMessages = new LinkedBlockingDeque<>();
+        statusConsumer.setOnMessageReceived(receivedStatusMessages::addAll);
+        Thread t2 = new Thread((Runnable) statusConsumer);
+        t2.start();
+
         // when
         processingRequestProducer.publish("verifySourceIsCompiledAndExecuted", processingRequestMessage);
 
@@ -88,6 +98,17 @@ public class CompilationAndExecutionE2ETest {
         Assertions.assertThat(resultMessage.getExitCode()).isEqualTo(0);
         Assertions.assertThat(resultMessage.getStdout()).isEqualTo("The number is:\n28657");
         Assertions.assertThat(resultMessage.getStderr()).isEqualTo("");
+
+        Awaitility.await().atMost(Duration.ofSeconds(30)).until(() -> receivedStatusMessages.stream()
+            .filter((msg) -> msg.getKey().equals("verifySourceIsCompiledAndExecuted"))
+            .count() == 4);
+
+        List<StatusEventType> statusEventTypes = receivedStatusMessages.stream()
+                .filter((msg) -> msg.getKey().equals("verifySourceIsCompiledAndExecuted"))
+                .map((msg) -> msg.getMessage().getStatusEventType())
+                .collect(Collectors.toList());
+        Assertions.assertThat(statusEventTypes).isEqualTo(List.of(StatusEventType.PROCESSING_STARTED, StatusEventType.PROCESSING_SUCCESS,
+                StatusEventType.RUN_STARTED, StatusEventType.RUN_FINISHED));
 
         t.interrupt();
     }
@@ -126,10 +147,19 @@ public class CompilationAndExecutionE2ETest {
         Thread t = new Thread((Runnable) simpleExecutionResultConsumer);
         t.start();
 
+        Collection<Message<String, StatusMessage>> receivedStatusMessages = new LinkedBlockingDeque<>();
+        statusConsumer.setOnMessageReceived(receivedStatusMessages::addAll);
+        Thread t2 = new Thread((Runnable) statusConsumer);
+        t2.start();
+
+        List<String> expectedCorrelationIds = new ArrayList<>();
+
         // when
         int corrId = 0;
         for (ProcessingRequestMessage message : processingRequests) {
-            processingRequestProducer.publish("verifyMultipleSimpleRequestsAreProcessed" + (corrId++), message);
+            processingRequestProducer.publish("verifyMultipleSimpleRequestsAreProcessed" + corrId, message);
+            expectedCorrelationIds.add("verifyMultipleSimpleRequestsAreProcessed" + corrId);
+            corrId++;
             Thread.sleep(200);
         }
 
@@ -139,7 +169,26 @@ public class CompilationAndExecutionE2ETest {
         for (SimpleExecutionResultMessage message : executionResultMessages) {
             results.add(message.getStdout());
         }
-
         Assertions.assertThat(results).isEqualTo(expectedResponses);
+
+        Awaitility.await().atMost(Duration.ofSeconds(30)).until(() -> receivedStatusMessages.stream()
+            .filter((msg) -> expectedCorrelationIds.contains(msg.getKey()))
+            .count() == 80);
+
+        List<Message<String, StatusMessage>> statusMessages = receivedStatusMessages.stream()
+                .filter((msg) -> expectedCorrelationIds.contains(msg.getKey()))
+                .collect(Collectors.toList());
+
+        for (int i = 0; i < 20; i++) {
+            String correlationId = "verifyMultipleSimpleRequestsAreProcessed" + i;
+            List<Message<String, StatusMessage>> expectedStatusMessages = List.of(
+                    new Message<>(correlationId, new StatusMessage(StatusEventType.PROCESSING_STARTED)),
+                    new Message<>(correlationId, new StatusMessage(StatusEventType.PROCESSING_SUCCESS)),
+                    new Message<>(correlationId, new StatusMessage(StatusEventType.RUN_STARTED)),
+                    new Message<>(correlationId, new StatusMessage(StatusEventType.RUN_FINISHED))
+            );
+
+            Assertions.assertThat(statusMessages).containsAll(expectedStatusMessages);
+        }
     }
 }

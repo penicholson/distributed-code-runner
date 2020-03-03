@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
         classes = CompilationWorkerApplication.class,
         initializers = E2ECompilationWorkerAcceptanceTest.CompilationWorkerContextInitializer.class
 )
-@EmbeddedKafka(partitions = 1, topics = { "processing-request", "processing-result" }, controlledShutdown = true)
+@EmbeddedKafka(partitions = 1, topics = { "processing-request", "processing-result", "status" }, controlledShutdown = true)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class E2ECompilationWorkerAcceptanceTest {
 
