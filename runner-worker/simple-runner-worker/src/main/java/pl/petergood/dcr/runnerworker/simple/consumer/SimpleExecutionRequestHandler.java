@@ -1,5 +1,7 @@
 package pl.petergood.dcr.runnerworker.simple.consumer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pl.petergood.dcr.file.FileInteractor;
 import pl.petergood.dcr.jail.Jail;
 import pl.petergood.dcr.jail.JailFactory;
@@ -10,6 +12,8 @@ import pl.petergood.dcr.messaging.MessageProducer;
 import pl.petergood.dcr.messaging.MessageReceivedEventHandler;
 import pl.petergood.dcr.messaging.schema.SimpleExecutionRequestMessage;
 import pl.petergood.dcr.messaging.schema.SimpleExecutionResultMessage;
+import pl.petergood.dcr.messaging.status.StatusEventType;
+import pl.petergood.dcr.messaging.status.StatusMessage;
 import pl.petergood.dcr.runnerworker.core.strategy.SimpleExecutionStrategy;
 import pl.petergood.dcr.runnerworker.simple.configuration.JailConfiguration;
 import pl.petergood.dcr.runnerworker.simple.producer.MessageProducerConfiguration;
@@ -24,20 +28,17 @@ public class SimpleExecutionRequestHandler implements MessageReceivedEventHandle
     private FileInteractor fileInteractor;
     private JailConfiguration jailConfiguration;
     private MessageProducer<String, SimpleExecutionResultMessage> executionResultMessageProducer;
-    private ConfigurationServiceClient configurationServiceClient;
-    private MessageProducer<SimpleExecutionResultMessage> executionResultMessageProducer;
+    private MessageProducer<String, StatusMessage> statusProducer;
 
     private Logger LOG = LoggerFactory.getLogger(SimpleExecutionRequestHandler.class);
 
     public SimpleExecutionRequestHandler(TerminalInteractor terminalInteractor,
                                          FileInteractor fileInteractor,
                                          JailConfiguration jailConfiguration,
-                                         ConfigurationServiceClient configurationServiceClient,
                                          MessageProducerConfiguration messageProducerConfiguration) {
         this.terminalInteractor = terminalInteractor;
         this.fileInteractor = fileInteractor;
         this.jailConfiguration = jailConfiguration;
-        this.configurationServiceClient = configurationServiceClient;
         this.executionResultMessageProducer = messageProducerConfiguration.getResultMessageProducer();
     }
 
@@ -55,7 +56,10 @@ public class SimpleExecutionRequestHandler implements MessageReceivedEventHandle
             SimpleExecutionStrategy executionStrategy = new SimpleExecutionStrategy(jail, fileInteractor);
 
             SimpleExecutionResultMessage resultMessage = executionStrategy.execute(message);
+
+            LOG.info("Simple execution finished with corlId={}", correlationId);
             executionResultMessageProducer.publish(correlationId, resultMessage);
+            statusProducer.publish(correlationId, new StatusMessage(StatusEventType.RUN_FINISHED));
         } catch (NsJailException | IOException ex) {
             LOG.error(ex.getMessage());
             ex.printStackTrace();

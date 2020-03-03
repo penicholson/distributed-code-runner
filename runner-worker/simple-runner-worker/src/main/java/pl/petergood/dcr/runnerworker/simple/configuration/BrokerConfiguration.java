@@ -15,6 +15,9 @@ public class BrokerConfiguration {
     @Value("${dcr.simplerunnerworker.broker.execution.result.topic.name}")
     private String executionResultTopicName;
 
+    @Value("${dcr.simplerunnerworker.broker.status.topic.name}")
+    private String statusTopicName;
+
     @Value("${dcr.simplerunnerworker.broker.group.name}")
     private String groupName;
 
@@ -28,6 +31,10 @@ public class BrokerConfiguration {
 
     public String getExecutionResultTopicName() {
         return executionResultTopicName;
+    }
+
+    public String getStatusTopicName() {
+        return statusTopicName;
     }
 
     public String getGroupName() {
