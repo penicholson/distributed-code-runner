@@ -114,6 +114,42 @@ public class CompilationAndExecutionE2ETest {
     }
 
     @Test
+    public void verifyJailViolationIsReported() {
+        // given
+        String source = "#include <iostream>\n" +
+                "\n" +
+                "using namespace std;\n" +
+                "\n" +
+                "int main() {\n" +
+                "    while (true) {}\n" +
+                "    return 0;\n" +
+                "}\n";
+        ProcessingRequestMessage processingRequestMessage = new ProcessingRequestMessage("CPP", source);
+        processingRequestMessage.setForwardingType(ForwardingType.SIMPLE);
+        processingRequestMessage.setStdin("");
+        processingRequestMessage.setExecutionProfileId(executionProfileId);
+
+        Collection<Message<String, StatusMessage>> receivedStatusMessages = new LinkedBlockingDeque<>();
+        statusConsumer.setOnMessageReceived(receivedStatusMessages::addAll);
+        Thread t2 = new Thread((Runnable) statusConsumer);
+        t2.start();
+
+        // when
+        processingRequestProducer.publish("verifyJailViolationIsReported", processingRequestMessage);
+
+        // then
+        Awaitility.await().atMost(Duration.ofSeconds(30)).until(() -> receivedStatusMessages.stream()
+            .filter((message) -> message.getKey().equals("verifyJailViolationIsReported"))
+            .count() == 4);
+
+        List<StatusEventType> statusMessages = receivedStatusMessages.stream()
+                .filter((message) -> message.getKey().equals("verifyJailViolationIsReported"))
+                .map((message) -> message.getMessage().getStatusEventType())
+                .collect(Collectors.toList());
+        Assertions.assertThat(statusMessages).contains(StatusEventType.RUN_VIOLATION);
+    }
+
+    @Test
     public void verifyMultipleSimpleRequestsAreProcessed() throws Exception {
         // given
         String source = "#include <iostream>\n" +

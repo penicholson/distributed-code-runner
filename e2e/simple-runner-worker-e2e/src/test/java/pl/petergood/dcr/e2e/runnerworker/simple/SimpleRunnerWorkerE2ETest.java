@@ -42,6 +42,9 @@ public class SimpleRunnerWorkerE2ETest {
     @Autowired
     private MessageConsumer<String, SimpleExecutionResultMessage> resultMessageConsumer;
 
+    @Autowired
+    private MessageConsumer<String, StatusMessage> statusConsumer;
+
     @Value("${dcr.e2e.configurationservice.url}")
     private String configurationServiceUrl;
 
