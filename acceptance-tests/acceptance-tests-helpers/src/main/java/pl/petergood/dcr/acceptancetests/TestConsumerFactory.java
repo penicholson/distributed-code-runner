@@ -11,7 +11,7 @@ import java.util.Properties;
 
 public class TestConsumerFactory {
 
-    public static <T> MessageConsumer<T> createConsumer(Class<T> messageClass, String bootstrapServer, String consumerGroup, String topicName) {
+    public static <T> MessageConsumer<String, T> createConsumer(Class<T> messageClass, String bootstrapServer, String consumerGroup, String topicName) {
         Properties properties = new Properties();
         properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
         properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");

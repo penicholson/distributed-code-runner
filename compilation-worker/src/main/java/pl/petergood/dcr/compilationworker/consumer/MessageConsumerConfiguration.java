@@ -32,7 +32,7 @@ public class MessageConsumerConfiguration {
     private MessageProducerConfiguration messageProducerConfiguration;
     private ForwardingStrategyFactory forwardingStrategyFactory;
 
-    private MessageConsumer<ProcessingRequestMessage> messageConsumer;
+    private MessageConsumer<String, ProcessingRequestMessage> messageConsumer;
 
     public MessageConsumerConfiguration(ThreadPoolTaskExecutor threadPoolTaskExecutor,
                                         BrokerConfiguration brokerConfiguration,

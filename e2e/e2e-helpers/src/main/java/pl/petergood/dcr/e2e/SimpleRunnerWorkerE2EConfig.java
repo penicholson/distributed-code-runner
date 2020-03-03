@@ -32,14 +32,14 @@ public class SimpleRunnerWorkerE2EConfig {
     private String executionResultTopic;
 
     @Bean
-    public MessageConsumer<SimpleExecutionResultMessage> executionResultConsumer() {
+    public MessageConsumer<String, SimpleExecutionResultMessage> executionResultConsumer() {
         Properties properties = createConsumerProperties("e2e-simple-execution-result");
         return new KafkaMessageConsumer<>(properties, executionResultTopic, Duration.ofSeconds(1),
                 new StringDeserializer(), new ObjectDeserializer<>(SimpleExecutionResultMessage.class));
     }
 
     @Bean
-    public MessageProducer<SimpleExecutionRequestMessage> executionRequestProducer() {
+    public MessageProducer<String, SimpleExecutionRequestMessage> executionRequestProducer() {
         Properties properties = new Properties();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapUrls);
         return new KafkaMessageProducer<>(executionRequestTopic, properties,

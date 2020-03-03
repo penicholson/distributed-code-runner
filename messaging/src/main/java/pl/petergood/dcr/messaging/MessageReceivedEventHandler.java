@@ -2,6 +2,6 @@ package pl.petergood.dcr.messaging;
 
 import java.util.List;
 
-public interface MessageReceivedEventHandler<T> {
-    void handleMessageBatch(List<T> message);
+public interface MessageReceivedEventHandler<K, V> {
+    void handleMessageBatch(List<Message<K, V>> message);
 }

@@ -18,10 +18,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.support.TestPropertySourceUtils;
 import pl.petergood.dcr.acceptancetests.TestConsumerFactory;
 import pl.petergood.dcr.acceptancetests.TestProducerFactory;
+import pl.petergood.dcr.messaging.Message;
 import pl.petergood.dcr.messaging.MessageConsumer;
 import pl.petergood.dcr.messaging.MessageProducer;
 import pl.petergood.dcr.messaging.schema.SimpleExecutionRequestMessage;
 import pl.petergood.dcr.messaging.schema.SimpleExecutionResultMessage;
+import pl.petergood.dcr.messaging.status.StatusEventType;
+import pl.petergood.dcr.messaging.status.StatusMessage;
 
 import java.io.File;
 import java.time.Duration;
@@ -29,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.stream.Collectors;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
@@ -37,7 +41,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
         classes = SimpleRunnerWorkerApplication.class,
         initializers = E2ESimpleRunnerWorkerAcceptanceTest.ContextInitializer.class
 )
-@EmbeddedKafka(partitions = 1, topics = { "simple-execution-request", "simple-execution-result" }, controlledShutdown = true)
+@EmbeddedKafka(partitions = 1, topics = { "simple-execution-request", "simple-execution-result", "status" }, controlledShutdown = true)
 public class E2ESimpleRunnerWorkerAcceptanceTest {
 
     @Value("${" + EmbeddedKafkaBroker.SPRING_EMBEDDED_KAFKA_BROKERS +"}")
@@ -78,17 +82,23 @@ public class E2ESimpleRunnerWorkerAcceptanceTest {
         byte[] bytes = Files.asByteSource(binaryFile).read();
         SimpleExecutionRequestMessage requestMessage = new SimpleExecutionRequestMessage("CPP", bytes, "121393 196418", 1); // 317811
 
-        MessageProducer<SimpleExecutionRequestMessage> messageProducer = TestProducerFactory.createProducer(bootstrapUrls, "simple-execution-request");
-        MessageConsumer<SimpleExecutionResultMessage> messageConsumer = TestConsumerFactory.createConsumer(SimpleExecutionResultMessage.class,
+        MessageProducer<String, SimpleExecutionRequestMessage> messageProducer = TestProducerFactory.createProducer(bootstrapUrls, "simple-execution-request");
+        MessageConsumer<String, SimpleExecutionResultMessage> messageConsumer = TestConsumerFactory.createConsumer(SimpleExecutionResultMessage.class,
                 bootstrapUrls, "test-simple-runner-worker", "simple-execution-result");
         Collection<SimpleExecutionResultMessage> receivedMessages = new LinkedBlockingDeque<>();
-        messageConsumer.setOnMessageReceived(receivedMessages::addAll);
-
+        messageConsumer.setOnMessageReceived((messages) -> receivedMessages.addAll(messages.stream().map(Message::getMessage).collect(Collectors.toList())));
         Thread t = new Thread((Runnable) messageConsumer);
         t.start();
 
+        MessageConsumer<String, StatusMessage> statusConsumer = TestConsumerFactory.createConsumer(StatusMessage.class,
+                bootstrapUrls, "status-consumer", "status");
+        Collection<Message<String, StatusMessage>> receivedStatusMessages = new LinkedBlockingDeque<>();
+        statusConsumer.setOnMessageReceived(receivedStatusMessages::addAll);
+        Thread t2 = new Thread((Runnable) statusConsumer);
+        t2.start();
+
         // when
-        messageProducer.publish(requestMessage);
+        messageProducer.publish("verifyCodeIsExecuted", requestMessage);
 
         // then
         Awaitility.await().atMost(Duration.ofSeconds(30)).until(() -> receivedMessages.size() == 1);
@@ -96,6 +106,16 @@ public class E2ESimpleRunnerWorkerAcceptanceTest {
         Assertions.assertThat(message.getExitCode()).isEqualTo(0);
         Assertions.assertThat(message.getStdout()).isEqualTo("317811");
         Assertions.assertThat(message.getStderr()).isEqualTo("");
+
+        Awaitility.await().atMost(Duration.ofSeconds(30)).until(() -> receivedStatusMessages.stream()
+            .filter((msg) -> msg.getKey().equals("verifyCodeIsExecuted"))
+            .count() == 2);
+
+        List<Message<String, StatusMessage>> statusMessages = receivedStatusMessages.stream()
+                .filter((msg) -> msg.getKey().equals("verifyCodeIsExecuted"))
+                .collect(Collectors.toList());
+        Assertions.assertThat(statusMessages.get(0).getMessage().getStatusEventType()).isEqualTo(StatusEventType.RUN_STARTED);
+        Assertions.assertThat(statusMessages.get(1).getMessage().getStatusEventType()).isEqualTo(StatusEventType.RUN_FINISHED);
     }
 
 }

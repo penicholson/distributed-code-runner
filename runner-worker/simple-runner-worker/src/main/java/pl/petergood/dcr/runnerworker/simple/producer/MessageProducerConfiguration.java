@@ -7,6 +7,7 @@ import pl.petergood.dcr.messaging.KafkaMessageProducer;
 import pl.petergood.dcr.messaging.MessageProducer;
 import pl.petergood.dcr.messaging.schema.SimpleExecutionResultMessage;
 import pl.petergood.dcr.messaging.serializer.ObjectSerializer;
+import pl.petergood.dcr.messaging.status.StatusMessage;
 import pl.petergood.dcr.runnerworker.simple.configuration.BrokerConfiguration;
 
 import javax.annotation.PostConstruct;
@@ -16,21 +17,30 @@ import java.util.Properties;
 public class MessageProducerConfiguration {
 
     private BrokerConfiguration brokerConfiguration;
-    private MessageProducer<SimpleExecutionResultMessage> resultMessageProducer;
+    private MessageProducer<String, SimpleExecutionResultMessage> resultMessageProducer;
+    private MessageProducer<String, StatusMessage> statusProducer;
 
     public MessageProducerConfiguration(BrokerConfiguration brokerConfiguration) {
         this.brokerConfiguration = brokerConfiguration;
     }
 
     @PostConstruct
-    public void setupResultMessageProducer() {
+    public void setupProducers() {
         Properties properties = new Properties();
         properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerConfiguration.getBrokerBootstrapUrls());
+
         resultMessageProducer = new KafkaMessageProducer<>(brokerConfiguration.getExecutionResultTopicName(), properties,
+                new StringSerializer(), new ObjectSerializer<>());
+
+        statusProducer = new KafkaMessageProducer<>(brokerConfiguration.getStatusTopicName(), properties,
                 new StringSerializer(), new ObjectSerializer<>());
     }
 
-    public MessageProducer<SimpleExecutionResultMessage> getResultMessageProducer() {
+    public MessageProducer<String, SimpleExecutionResultMessage> getResultMessageProducer() {
         return resultMessageProducer;
+    }
+
+    public MessageProducer<String, StatusMessage> getStatusProducer() {
+        return statusProducer;
     }
 }

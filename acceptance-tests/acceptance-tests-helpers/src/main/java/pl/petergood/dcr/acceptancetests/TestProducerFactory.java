@@ -10,7 +10,7 @@ import java.util.Properties;
 
 public class TestProducerFactory {
 
-    public static <T> MessageProducer<T> createProducer(String bootstrapServer, String topicName) {
+    public static <T> MessageProducer<String, T> createProducer(String bootstrapServer, String topicName) {
         Properties properties = new Properties();
         properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
         return new KafkaMessageProducer<>(topicName, properties, new StringSerializer(), new ObjectSerializer<>());

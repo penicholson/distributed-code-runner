@@ -1,6 +1,6 @@
 package pl.petergood.dcr.messaging;
 
-public interface MessageConsumer<T> {
-    void setOnMessageReceived(MessageReceivedEventHandler<T> eventHandler);
+public interface MessageConsumer<K, V> {
+    void setOnMessageReceived(MessageReceivedEventHandler<K, V> eventHandler);
     void close();
 }

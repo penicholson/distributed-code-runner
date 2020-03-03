@@ -16,26 +16,34 @@ import org.springframework.http.*;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.RestTemplate;
 import pl.petergood.dcr.e2e.SimpleRunnerWorkerE2EApplication;
+import pl.petergood.dcr.messaging.Message;
 import pl.petergood.dcr.messaging.MessageConsumer;
 import pl.petergood.dcr.messaging.MessageProducer;
 import pl.petergood.dcr.messaging.schema.SimpleExecutionRequestMessage;
 import pl.petergood.dcr.messaging.schema.SimpleExecutionResultMessage;
+import pl.petergood.dcr.messaging.status.StatusEventType;
+import pl.petergood.dcr.messaging.status.StatusMessage;
 
 import java.io.File;
 import java.net.URI;
 import java.time.Duration;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.stream.Collectors;
 
 @SpringBootTest
 @ContextConfiguration(classes = SimpleRunnerWorkerE2EApplication.class)
 public class SimpleRunnerWorkerE2ETest {
 
     @Autowired
-    private MessageProducer<SimpleExecutionRequestMessage> requestMessageProducer;
+    private MessageProducer<String, SimpleExecutionRequestMessage> requestMessageProducer;
 
     @Autowired
-    private MessageConsumer<SimpleExecutionResultMessage> resultMessageConsumer;
+    private MessageConsumer<String, SimpleExecutionResultMessage> resultMessageConsumer;
+
+    @Autowired
+    private MessageConsumer<String, StatusMessage> statusConsumer;
 
     @Value("${dcr.e2e.configurationservice.url}")
     private String configurationServiceUrl;
@@ -60,12 +68,17 @@ public class SimpleRunnerWorkerE2ETest {
         SimpleExecutionRequestMessage requestMessage = new SimpleExecutionRequestMessage("CPP", bytes, "832040 1346269", executionProfileId);
 
         Collection<SimpleExecutionResultMessage> receivedMessages = new LinkedBlockingDeque<>();
-        resultMessageConsumer.setOnMessageReceived(receivedMessages::addAll);
+        resultMessageConsumer.setOnMessageReceived((messages) -> receivedMessages.addAll(messages.stream().map(Message::getMessage).collect(Collectors.toList())));
         Thread t = new Thread((Runnable) resultMessageConsumer);
         t.start();
 
+        Collection<Message<String, StatusMessage>> receivedStatusMessages = new LinkedBlockingDeque<>();
+        statusConsumer.setOnMessageReceived(receivedStatusMessages::addAll);
+        Thread t2 = new Thread((Runnable) statusConsumer);
+        t2.start();
+
         // when
-        requestMessageProducer.publish(requestMessage);
+        requestMessageProducer.publish("verifyBinaryIsExecuted", requestMessage);
 
         // then
         Awaitility.await().atMost(Duration.ofSeconds(30)).until(() -> receivedMessages.size() == 1);
@@ -73,6 +86,15 @@ public class SimpleRunnerWorkerE2ETest {
         Assertions.assertThat(message.getExitCode()).isEqualTo(0);
         Assertions.assertThat(message.getStdout()).isEqualTo("2178309");
         Assertions.assertThat(message.getStderr()).isEqualTo("");
+
+        Awaitility.await().atMost(Duration.ofSeconds(30)).until(() -> receivedStatusMessages.stream()
+            .filter((msg) -> msg.getKey().equals("verifyBinaryIsExecuted"))
+            .count() == 2);
+        List<Message<String, StatusMessage>> statusMessages = receivedStatusMessages.stream()
+                .filter((msg) -> msg.getKey().equals("verifyBinaryIsExecuted"))
+                .collect(Collectors.toList());
+        Assertions.assertThat(statusMessages.get(0).getMessage().getStatusEventType()).isEqualTo(StatusEventType.RUN_STARTED);
+        Assertions.assertThat(statusMessages.get(1).getMessage().getStatusEventType()).isEqualTo(StatusEventType.RUN_FINISHED);
     }
 
 }

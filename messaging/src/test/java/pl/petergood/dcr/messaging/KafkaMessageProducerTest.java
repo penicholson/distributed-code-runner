@@ -42,10 +42,10 @@ public class KafkaMessageProducerTest {
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaRule.getEmbeddedKafka().getBrokersAsString());
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        MessageProducer<String> messageProducer = new KafkaMessageProducer<>("test-topic", properties);
+        MessageProducer<String, String> messageProducer = new KafkaMessageProducer<>("test-topic", properties);
 
         // when
-        messageProducer.publish("hello world!");
+        messageProducer.publish("key", "hello world!");
 
         // then
         ConsumerRecords<String, String> records = KafkaTestUtils.getRecords(consumer, 1000);
@@ -53,6 +53,7 @@ public class KafkaMessageProducerTest {
 
         ConsumerRecord<String, String> record = StreamSupport.stream(records.spliterator(), false).collect(Collectors.toList()).get(0);
         Assertions.assertThat(record.value()).isEqualTo("hello world!");
+        Assertions.assertThat(record.key()).isEqualTo("key");
     }
 
 }
