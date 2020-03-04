@@ -25,6 +25,7 @@
         <module>runner-worker</module>
         <module>language</module>
         <module>configuration-service</module>
+        <module>status-service</module>
     </modules>
 
     <dependencies>
