@@ -1,0 +1,13 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dcrcompilationworker
+spec:
+  template:
+    metadata:
+      labels:
+        app: dcr
+        dcrKind: worker
+    containers:
+      - image: petergood/dcrcompilationworker
+        name: dcrcompilationworker
