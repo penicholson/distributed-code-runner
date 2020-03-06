@@ -21,6 +21,11 @@ spec:
               value: 'zookeeper-single:2181'
             - name: KAFKA_LISTENERS
               value: 'INSIDE://kafka-single:9092,OUTSIDE://kafka-single:9093'
+            - name: KAFKA_ADVERTISED_LISTENERS
+              valueFrom:
+                configMapKeyRef:
+                  key: KAFKA_ADVERTISED_LISTENERS
+                  name: kafka-single-config
             - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
               value: 'INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT'
             - name: KAFKA_INTER_BROKER_LISTENER_NAME
@@ -30,6 +35,7 @@ spec:
               mountPath: '/tmp/kafka-logs'
           ports:
             - containerPort: 9092
+            - containerPort: 9093
   volumeClaimTemplates:
     - metadata:
         name: kafka-single-data
@@ -49,7 +55,19 @@ spec:
     - port: 9092
       name: inside
     - port: 9093
-      name: outside
+      name: internal
   clusterIP: None
+  selector:
+    app: kafka-single
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-single-loadbalancer
+  namespace: kafka-cluster
+spec:
+  ports:
+    - port: 9093
+  type: LoadBalancer
   selector:
     app: kafka-single

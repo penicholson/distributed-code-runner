@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dcrsimplerunnerworker
+  namespace: dcr
+spec:
+  selector:
+    matchLabels:
+      app: dcrsimplerunnerworker
+  template:
+    metadata:
+      labels:
+        app: dcrsimplerunnerworker
+    spec:
+      containers:
+        - name: simplerunnerworker
+          image: petergood/dcrsimplerunnerworker
+          securityContext:
+            privileged: true
+          env:
+            - name: DCR_SIMPLERUNNERWORKER_BROKER_BOOTSTRAP_URLS
+              value: 'kafka-single.kafka-cluster.svc.cluster.local:9092'
+            - name: DCR_SIMPLERUNNERWORKER_CONFIGURATIONSERVICE_URL
+              value: 'http://dcrconfigurationservice:8080'

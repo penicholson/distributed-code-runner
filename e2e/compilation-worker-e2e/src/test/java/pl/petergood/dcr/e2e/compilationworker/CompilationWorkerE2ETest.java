@@ -131,7 +131,9 @@ public class CompilationWorkerE2ETest {
         Assertions.assertThat(messages.size()).isEqualTo(2);
         Assertions.assertThat(messages.get(1).getStatusEventType()).isEqualTo(StatusEventType.PROCESSING_FAILURE);
         Assertions.assertThat(messages.get(1).getMessage()).contains("error: 'asdf' was not declared in this scope");
-        List<String> correlationIds = resultMessages.stream().map(Message::getKey).collect(Collectors.toList());
+        List<String> correlationIds = resultMessages.stream()
+                .filter((message) -> message.getKey().equals("verifyIncorrectCodeIsNotCompiled"))
+                .map(Message::getKey).collect(Collectors.toList());
         Assertions.assertThat(correlationIds).containsOnly("verifyIncorrectCodeIsNotCompiled");
 
         t.interrupt();

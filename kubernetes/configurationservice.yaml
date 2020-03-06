@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dcrconfigurationservice
+  namespace: dcr
+spec:
+  selector:
+    matchLabels:
+      app: dcrconfigurationservice
+  template:
+    metadata:
+      labels:
+        app: dcrconfigurationservice
+    spec:
+      containers:
+        - image: petergood/dcrconfigurationservice
+          name: configurationservice
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: 'jdbc:postgresql://postgres-dcrconfigurationservice/configurationservice'
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  key: postgres_user
+                  name: postgres-configurationservice-secret
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: postgres_password
+                  name: postgres-configurationservice-secret
+            - name: SPRING_JPA_DATABASE-PLATFORM
+              value: 'org.hibernate.dialect.PostgreSQLDialect'
+            - name: SPRING_JPA_HIBERNATE_DDL-AUTO
+              value: 'create'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dcrconfigurationservice
+  namespace: dcr
+spec:
+  type: NodePort # temporary solution, until API gateway is ready
+  ports:
+    - nodePort: 30000
+      port: 8080
+  selector:
+    app: dcrconfigurationservice

@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-dcrconfigurationservice
+  namespace: dcr
+spec:
+  serviceName: postgres-dcrconfigurationservice
+  selector:
+    matchLabels:
+      app: postgres-dcrconfigurationservice
+  template:
+    metadata:
+      labels:
+        app: postgres-dcrconfigurationservice
+    spec:
+      containers:
+        - image: postgres
+          name: postgres
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-configurationservice-secret
+                  key: postgres_user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-configurationservice-secret
+                  key: postgres_password
+            - name: POSTGRES_DB
+              value: configurationservice
+            - name: PGDATA
+              value: '/var/lib/postgresql/data/pgdata'
+          volumeMounts:
+            - mountPath: '/var/lib/postgresql/data'
+              name: postgres-dcrconfigurationservice
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-dcrconfigurationservice
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-dcrconfigurationservice
+  namespace: dcr
+spec:
+  ports:
+    - port: 5432
+  clusterIP: None
+  selector:
+    app: postgres-dcrconfigurationservice
