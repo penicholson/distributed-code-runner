@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dcrcompilationworker
+  namespace: dcr
+spec:
+  selector:
+    matchLabels:
+      app: dcrcompilationworker
+  template:
+    metadata:
+      labels:
+        app: dcrcompilationworker
+    spec:
+      containers:
+        - image: petergood/dcrcompilationworker
+          name: dcrcompilationworker
+          env:
+            - name: DCR_COMPILATIONWORKER_JAIL_CONFIGURATION_KAFKA_BOOTSTRAP_URLS
+              value: 'kafka-single.kafka-cluster.svc.cluster.local:9092'
+          securityContext:
+            privileged: true

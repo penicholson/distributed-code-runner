@@ -16,15 +16,15 @@
         <module name="shell-acceptance-tests" />
         <module name="messaging" />
         <module name="simple-runner-worker-acceptance-tests" />
-        <module name="e2e-helpers" />
         <module name="acceptance-tests-helpers" />
         <module name="configuration-service-acceptance-tests" />
+        <module name="configuration-service-e2e" />
         <module name="compilation-worker-acceptance-tests" />
         <module name="compilation-worker-e2e" />
         <module name="simple-runner-worker" />
         <module name="simple-runner-worker-e2e" />
         <module name="runner-worker-core" />
-        <module name="configuration-service-e2e" />
+        <module name="e2e-helpers" />
         <module name="runner-worker-core-acceptance-tests" />
       </profile>
     </annotationProcessing>
