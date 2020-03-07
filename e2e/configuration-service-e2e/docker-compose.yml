@@ -6,6 +6,9 @@ services:
       POSTGRES_USER: test
       POSTGRES_PASSWORD: hello
       POSTGRES_DB: configurationservice
+    networks:
+      e2enetwork:
+        ipv4_address: "172.18.0.10"
   configurationservice:
     image: dcrconfigurationservice:latest
     environment:
@@ -16,3 +19,12 @@ services:
       SPRING_JPA_HIBERNATE_DDL-AUTO: create
     ports:
       - "8080:8080"
+    networks:
+      e2enetwork:
+          ipv4_address: "172.18.0.11"
+networks:
+  e2enetwork:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.18.0.0/16

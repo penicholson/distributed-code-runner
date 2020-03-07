@@ -1,0 +1,1 @@
+docker-compose -f e2e/simple-runner-worker-e2e/docker-compose.yml down
