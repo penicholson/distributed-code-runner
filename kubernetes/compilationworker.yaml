@@ -17,6 +17,6 @@ spec:
           name: dcrcompilationworker
           env:
             - name: DCR_COMPILATIONWORKER_JAIL_CONFIGURATION_KAFKA_BOOTSTRAP_URLS
-              value: 'kafka-single.kafka-cluster.svc.cluster.local:9092'
+              value: 'kafka-cluster-0.kafka-cluster.kafka-cluster.svc.cluster.local:9092'
           securityContext:
             privileged: true
