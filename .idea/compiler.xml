@@ -13,6 +13,7 @@
         <module name="shell" />
         <module name="language-acceptance-tests" />
         <module name="full-e2e" />
+        <module name="status-service" />
         <module name="shell-acceptance-tests" />
         <module name="messaging" />
         <module name="simple-runner-worker-acceptance-tests" />
@@ -44,6 +45,7 @@
       <module name="shell" options="" />
       <module name="simple-runner-worker" options="-parameters" />
       <module name="simple-runner-worker-e2e" options="-parameters" />
+      <module name="status-service" options="-parameters" />
     </option>
   </component>
 </project>
